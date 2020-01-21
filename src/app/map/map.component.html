@@ -1,21 +1,30 @@
-<GridLayout rows="auto,*">
-    <StackLayout row="0">
-        <Button text="Hello" (tap)="animateCamera()"></Button>
+<GridLayout>
+    <StackLayout>
+        <ContentView height="100%" width="100%">
+            <Mapbox
+                    accessToken="pk.eyJ1IjoiYXNobGV5Z291cnkiLCJhIjoiY2s1aXZ1M2s5MGU1NzNsbXEwbWh5dWc1diJ9.UjkOySG2s_jtmi5ihILgnw"
+                    mapStyle="traffic_day"
+                    latitude="45.551659"
+                    longitude="-73.554826"
+                    hideCompass="true"
+                    zoomLevel="14"
+                    showUserLocation="true"
+                    disableZoom="false"
+                    disableRotation="false"
+                    disableScroll="false"
+                    disableTilt="false"
+                    (mapReady)="onMapReady($event)">
+            </Mapbox>
+        </ContentView>
     </StackLayout>
-    <ContentView class="page" row="1">
-        <Mapbox
-                accessToken="pk.eyJ1IjoiYXNobGV5Z291cnkiLCJhIjoiY2s1aXZ1M2s5MGU1NzNsbXEwbWh5dWc1diJ9.UjkOySG2s_jtmi5ihILgnw"
-                mapStyle="traffic_day"
-                latitude="45.551659"
-                longitude="-73.554826"
-                hideCompass="true"
-                zoomLevel="14"
-                showUserLocation="true"
-                disableZoom="false"
-                disableRotation="false"
-                disableScroll="false"
-                disableTilt="false"
-                (mapReady)="onMapReady($event)">
-        </Mapbox>
-    </ContentView>
+
+    <StackLayout>
+        <SearchBar hint="Search here" class="transparent-area"></SearchBar>
+    </StackLayout>
+
+    <StackLayout columns="auto, auto" orientation="horizontal" class="follow">
+        <Label text="Follow me" class="m-r-10" verticalAlignment="center"></Label>
+        <Switch [checked]="following" (checkedChange)="toggleFollowing($event)"></Switch>
+    </StackLayout>
+
 </GridLayout>

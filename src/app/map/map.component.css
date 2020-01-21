@@ -1,1 +1,13 @@
-/* Add mobile styles for the component here.  */
+.transparent-area {
+    background-color: rgba(255, 255, 255, 0.6);
+    margin: 5 10;
+}
+
+.follow {
+    horizontal-align: right;
+    vertical-align: top;
+    border-radius: 16;
+    background-color: #f7797d;
+    margin: 65 10 0 28;
+    padding: 8 0 8 5;
+}
