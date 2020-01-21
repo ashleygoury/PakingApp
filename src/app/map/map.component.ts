@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 import {MapboxApi} from "nativescript-mapbox";
 import {registerElement} from 'nativescript-angular/element-registry';
+import {Page} from "tns-core-modules/ui/page";
 
 registerElement("Mapbox", () => require("nativescript-mapbox").MapboxView);
 
@@ -13,10 +14,10 @@ registerElement("Mapbox", () => require("nativescript-mapbox").MapboxView);
 export class MapComponent implements OnInit {
     map: MapboxApi;
 
-    constructor() {
+    constructor(private page: Page) {
     }
-
-    ngOnInit(): void {
+    ngOnInit() {
+        this.page.actionBarHidden = true;
     }
 
     onMapReady(args) {
