@@ -1,0 +1,21 @@
+<GridLayout rows="auto,*">
+    <StackLayout row="0">
+        <Button text="Hello" (tap)="animateCamera()"></Button>
+    </StackLayout>
+    <ContentView class="page" row="1">
+        <Mapbox
+                accessToken="pk.eyJ1IjoiYXNobGV5Z291cnkiLCJhIjoiY2s1aXZ1M2s5MGU1NzNsbXEwbWh5dWc1diJ9.UjkOySG2s_jtmi5ihILgnw"
+                mapStyle="traffic_day"
+                latitude="45.551659"
+                longitude="-73.554826"
+                hideCompass="true"
+                zoomLevel="14"
+                showUserLocation="true"
+                disableZoom="false"
+                disableRotation="false"
+                disableScroll="false"
+                disableTilt="false"
+                (mapReady)="onMapReady($event)">
+        </Mapbox>
+    </ContentView>
+</GridLayout>
