@@ -34,7 +34,8 @@
             <Span class="fas" text="&#xf27a;"></Span>
         </Button>
         <StackLayout col="1" verticalAlignment="bottom" class="btn_save">
-            <Button text="Save Parking"></Button>
+            <Button *ngIf="!carPark" (tap)="saveParking()" text="Save Parking"></Button>
+            <Button *ngIf="carPark" (tap)="showBottomSheet()" text="Find Car"></Button>
         </StackLayout>
     </StackLayout>
 
