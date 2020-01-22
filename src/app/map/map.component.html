@@ -1,21 +1,40 @@
-<GridLayout rows="auto,*">
-    <StackLayout row="0">
-        <Button text="Hello" (tap)="animateCamera()"></Button>
+<GridLayout>
+    <StackLayout>
+        <ContentView height="100%" width="100%">
+            <Mapbox
+                    accessToken="pk.eyJ1IjoiYXNobGV5Z291cnkiLCJhIjoiY2s1aXZ1M2s5MGU1NzNsbXEwbWh5dWc1diJ9.UjkOySG2s_jtmi5ihILgnw"
+                    mapStyle="traffic_day"
+                    latitude="45.551659"
+                    longitude="-73.554826"
+                    hideCompass="true"
+                    zoomLevel="14"
+                    showUserLocation="true"
+                    disableZoom="false"
+                    disableRotation="false"
+                    disableScroll="false"
+                    disableTilt="false"
+                    (mapReady)="onMapReady($event)">
+            </Mapbox>
+        </ContentView>
     </StackLayout>
-    <ContentView class="page" row="1">
-        <Mapbox
-                accessToken="pk.eyJ1IjoiYXNobGV5Z291cnkiLCJhIjoiY2s1aXZ1M2s5MGU1NzNsbXEwbWh5dWc1diJ9.UjkOySG2s_jtmi5ihILgnw"
-                mapStyle="traffic_day"
-                latitude="45.551659"
-                longitude="-73.554826"
-                hideCompass="true"
-                zoomLevel="14"
-                showUserLocation="true"
-                disableZoom="false"
-                disableRotation="false"
-                disableScroll="false"
-                disableTilt="false"
-                (mapReady)="onMapReady($event)">
-        </Mapbox>
-    </ContentView>
+
+    <StackLayout>
+        <!--        <SearchBar hint="Search here" class="transparent-area"></SearchBar>-->
+        <TextField class="transparent-area" hint="Search"></TextField>
+    </StackLayout>
+
+    <StackLayout columns="auto, auto" orientation="horizontal" class="follow">
+        <Label text="Follow me" verticalAlignment="center"></Label>
+        <Switch [checked]="following" (checkedChange)="toggleFollowing($event)"></Switch>
+    </StackLayout>
+
+    <StackLayout columns="auto, *" orientation="horizontal">
+        <StackLayout (tap)="animateCamera()" col="0" class="round-square" verticalAlignment="bottom" horizontalAlignment="left">
+            <Label class="fas" text="&#xf27a;"></Label>
+        </StackLayout>
+        <StackLayout col="1" verticalAlignment="bottom" class="btn_save">
+            <Button text="Save Parking"></Button>
+        </StackLayout>
+    </StackLayout>
+
 </GridLayout>
