@@ -19,12 +19,22 @@
     </StackLayout>
 
     <StackLayout>
-        <SearchBar hint="Search here" class="transparent-area"></SearchBar>
+        <!--        <SearchBar hint="Search here" class="transparent-area"></SearchBar>-->
+        <TextField class="transparent-area" hint="Search"></TextField>
     </StackLayout>
 
     <StackLayout columns="auto, auto" orientation="horizontal" class="follow">
-        <Label text="Follow me" class="m-r-10" verticalAlignment="center"></Label>
+        <Label text="Follow me" verticalAlignment="center"></Label>
         <Switch [checked]="following" (checkedChange)="toggleFollowing($event)"></Switch>
+    </StackLayout>
+
+    <StackLayout columns="auto, *" orientation="horizontal">
+        <StackLayout (tap)="animateCamera()" col="0" class="round-square" verticalAlignment="bottom" horizontalAlignment="left">
+            <Label class="fas" text="&#xf27a;"></Label>
+        </StackLayout>
+        <StackLayout col="1" verticalAlignment="bottom" class="btn_save">
+            <Button text="Save Parking"></Button>
+        </StackLayout>
     </StackLayout>
 
 </GridLayout>
