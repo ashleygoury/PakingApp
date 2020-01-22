@@ -30,6 +30,11 @@
     color: #707070;
 }
 
+.round-square:highlighted, {
+    background-color: #707070;
+    color: white;
+}
+
 .btn_save {
     color: white;
     margin-bottom: 40;
@@ -44,5 +49,6 @@
 }
 
 .btn_save Button:highlighted {
-    background-color: #3A6CE1;
+    background-color: white;
+    color: #3ACCE1;
 }
