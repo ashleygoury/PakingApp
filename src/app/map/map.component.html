@@ -29,9 +29,10 @@
     </StackLayout>
 
     <StackLayout columns="auto, *" orientation="horizontal">
-        <StackLayout (tap)="animateCamera()" col="0" class="round-square" verticalAlignment="bottom" horizontalAlignment="left">
-            <Label class="fas" text="&#xf27a;"></Label>
-        </StackLayout>
+        <Button (tap)="animateCamera()" col="0" class="round-square" verticalAlignment="bottom"
+                horizontalAlignment="left">
+            <Span class="fas" text="&#xf27a;"></Span>
+        </Button>
         <StackLayout col="1" verticalAlignment="bottom" class="btn_save">
             <Button text="Save Parking"></Button>
         </StackLayout>
