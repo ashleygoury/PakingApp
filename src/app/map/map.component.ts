@@ -13,6 +13,8 @@ import {
 import {Directions} from "nativescript-directions";
 import {ModalDialogService} from "nativescript-angular";
 import {MessageComponent} from "~/app/message/message.component";
+import * as geolocation from "nativescript-geolocation";
+import {Accuracy} from "tns-core-modules/ui/enums";
 
 registerElement("Mapbox", () => require("nativescript-mapbox").MapboxView);
 
@@ -22,14 +24,14 @@ registerElement("Mapbox", () => require("nativescript-mapbox").MapboxView);
     styleUrls: ['./map.component.css']
 })
 export class MapComponent implements OnInit {
-    private map: MapboxApi;
-    private following: boolean = false;
-    private carParkLat: number = 45.551659;
-    private carParkLng: number = -73.554826;
-    private carPark: boolean = false;
-    private btnName: string = "Save Parking";
-    private cfalertDialog: CFAlertDialog;
-    private directions: Directions;
+    map: MapboxApi;
+    following: boolean = false;
+    carParkLat: number;
+    carParkLng: number;
+    carPark: boolean = false;
+    btnName: string = "Save Parking";
+    cfalertDialog: CFAlertDialog;
+    directions: Directions;
 
     constructor(private page: Page, private modalDialog: ModalDialogService, private vcRef: ViewContainerRef) {
         this.cfalertDialog = new CFAlertDialog();
@@ -38,18 +40,34 @@ export class MapComponent implements OnInit {
 
     ngOnInit() {
         this.page.actionBarHidden = true;
+
+        let that = this;
+        geolocation.getCurrentLocation({
+            desiredAccuracy: Accuracy.high,
+            maximumAge: 5000,
+            timeout: 10000
+        }).then(function (loc) {
+            if (loc) {
+                that.carParkLng = loc.longitude;
+                that.carParkLat = loc.latitude;
+            }
+        }, function (e) {
+            console.log("Error: " + (e.message || e));
+        });
     }
 
     onMapReady(args) {
         this.map = args.map;
+
+        this.map.setCenter(
+            {
+                lat: this.carParkLat, // mandatory
+                lng: this.carParkLng, // mandatory
+                animated: true // default true
+            }
+        )
     }
 
-    animateCamera() {
-        this.map.trackUser({
-            mode: "FOLLOW", // "NONE" | "FOLLOW" | "FOLLOW_WITH_HEADING" | "FOLLOW_WITH_COURSE"
-            animated: true
-        });
-    }
 
     toggleFollowing(args: PropertyChangeData): void {
         if (args.value !== null && args.value !== this.following) {
@@ -144,7 +162,8 @@ export class MapComponent implements OnInit {
                 duration: 1000
             });
         }
-    };
+    }
+    ;
 
     onLeaveMessage() {
         this.modalDialog.showModal(MessageComponent, {
