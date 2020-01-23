@@ -1,0 +1,14 @@
+<FlexboxLayout horizontalAlignment="left" width="80%">
+    <StackLayout class="margin">
+        <Label text="Name: " width="100%"></Label>
+        <TextField hint="Firstname Surname" width="100%"></TextField>
+    </StackLayout>
+    <StackLayout class="margin">
+    <Label text="Message: " width="100%"></Label>
+    <TextView hint="Enter some text..." width="100%"></TextView>
+    </StackLayout>
+    <StackLayout orientation="horizontal">
+        <Button col="1" text="Cancel" class="cancel"(tap)="sendData('cancel')"></Button>
+        <Button col="0" text="Send" class="send" (tap)="sendData('send')"></Button>
+    </StackLayout>
+</FlexboxLayout>

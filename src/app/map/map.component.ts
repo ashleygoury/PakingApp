@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewContainerRef} from '@angular/core';
 
 import {MapboxApi, MapboxMarker} from "nativescript-mapbox";
 import {registerElement} from 'nativescript-angular/element-registry';
@@ -11,6 +11,8 @@ import {
     DialogOptions
 } from "nativescript-cfalert-dialog";
 import {Directions} from "nativescript-directions";
+import {ModalDialogService} from "nativescript-angular";
+import {MessageComponent} from "~/app/message/message.component";
 
 registerElement("Mapbox", () => require("nativescript-mapbox").MapboxView);
 
@@ -20,15 +22,16 @@ registerElement("Mapbox", () => require("nativescript-mapbox").MapboxView);
     styleUrls: ['./map.component.css']
 })
 export class MapComponent implements OnInit {
-    map: MapboxApi;
-    following: boolean = false;
-    carParkLat: number = 45.551659;
-    carParkLng: number = -73.554826;
-    carPark: boolean = false;
+    private map: MapboxApi;
+    private following: boolean = false;
+    private carParkLat: number = 45.551659;
+    private carParkLng: number = -73.554826;
+    private carPark: boolean = false;
+    private btnName: string = "Save Parking";
     private cfalertDialog: CFAlertDialog;
     private directions: Directions;
 
-    constructor(private page: Page) {
+    constructor(private page: Page, private modalDialog: ModalDialogService, private vcRef: ViewContainerRef) {
         this.cfalertDialog = new CFAlertDialog();
         this.directions = new Directions();
     }
@@ -39,7 +42,6 @@ export class MapComponent implements OnInit {
 
     onMapReady(args) {
         this.map = args.map;
-        console.log("onMapReady");
     }
 
     animateCamera() {
@@ -106,22 +108,23 @@ export class MapComponent implements OnInit {
 
     toggleParkText() {
         this.carPark = false;
+        this.btnName = "Save Parking";
     }
 
     saveParking() {
         if (!this.carPark) {
             this.carPark = true;
+            this.btnName = "Find Car";
             const parkingSpot = <MapboxMarker>{
                 id: 1,
                 lat: this.carParkLat,
                 lng: this.carParkLng,
                 title: 'Yor park here!',
-                subtitle: 'Tap to remove',
+                subtitle: 'Tap for more option',
                 selected: true,
                 onTap: marker => console.log("Marker tapped with title: '" + marker.title + "'"),
                 onCalloutTap: () => {
-                    this.toggleParkText();
-                    this.map.removeMarkers([1]);
+                    this.showBottomSheet();
                 }
             };
 
@@ -142,4 +145,15 @@ export class MapComponent implements OnInit {
             });
         }
     };
+
+    onLeaveMessage() {
+        this.modalDialog.showModal(MessageComponent, {
+            fullscreen: false,
+            viewContainerRef: this.vcRef,
+            context: {name: "name", message: "message"}
+        }).then((result: string) => {
+            alert(result);
+            console.log(result);
+        });
+    }
 }

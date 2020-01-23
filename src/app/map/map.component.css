@@ -10,9 +10,10 @@
     horizontal-align: right;
     vertical-align: top;
     border-radius: 16;
-    background-color: #f7797d;
+    background-color: #3ACCE1;
     margin: 65 10 0 28;
     padding: 8 0 8 5;
+    color: white;
 }
 
 .round-square {
@@ -30,7 +31,7 @@
     color: #707070;
 }
 
-.round-square:highlighted, {
+.round-square:highlighted {
     background-color: #707070;
     color: white;
 }
