@@ -15,6 +15,9 @@ import {ModalDialogService} from "nativescript-angular";
 import {MessageComponent} from "~/app/message/message.component";
 import * as geolocation from "nativescript-geolocation";
 import {Accuracy} from "tns-core-modules/ui/enums";
+import {SearchBar} from "tns-core-modules/ui/search-bar";
+import {GooglePlacesAutocomplete} from 'nativescript-google-places-autocomplete';
+import {ItemEventData} from "tns-core-modules/ui/list-view";
 
 registerElement("Mapbox", () => require("nativescript-mapbox").MapboxView);
 
@@ -32,10 +35,18 @@ export class MapComponent implements OnInit {
     btnName: string = "Save Parking";
     cfalertDialog: CFAlertDialog;
     directions: Directions;
+    API_KEY = "AIzaSyAOYKrNk8B72AcOnF9SD3WjcemZHmuUcRY";
+    googlePlacesAutoComplete: GooglePlacesAutocomplete;
+    predictions: string[];
+    item: string;
+    searchPhrase: string;
+    displayAutocomplete: boolean = false;
+
 
     constructor(private page: Page, private modalDialog: ModalDialogService, private vcRef: ViewContainerRef) {
         this.cfalertDialog = new CFAlertDialog();
         this.directions = new Directions();
+        this.googlePlacesAutoComplete = new GooglePlacesAutocomplete(this.API_KEY);
     }
 
     ngOnInit() {
@@ -67,7 +78,6 @@ export class MapComponent implements OnInit {
             }
         )
     }
-
 
     toggleFollowing(args: PropertyChangeData): void {
         if (args.value !== null && args.value !== this.following) {
@@ -163,7 +173,6 @@ export class MapComponent implements OnInit {
             });
         }
     }
-    ;
 
     onLeaveMessage() {
         this.modalDialog.showModal(MessageComponent, {
@@ -174,5 +183,57 @@ export class MapComponent implements OnInit {
             alert(result);
             console.log(result);
         });
+    }
+
+    onSubmit(args) {
+        const searchBar = args.object as SearchBar;
+        console.log(`Searching for ${searchBar.text}`);
+    }
+
+    onTextChanged(args) {
+        const searchBar = args.object as SearchBar;
+        console.log(`Input changed! New value: ${searchBar.text}`);
+        if (searchBar.text) {
+            this.displayAutocomplete = true;
+            console.log("Inside if statement");
+            this.googlePlacesAutoComplete.search(searchBar.text).then((place) => {
+                console.log(place[0].description);
+                this.item = place[0].description;
+                this.predictions = place.slice();
+            })
+        }
+    }
+
+    onClear(args) {
+        const searchBar = args.object as SearchBar;
+        console.log(`Clear event raised`);
+        this.displayAutocomplete = false;
+    }
+
+    onItemTap(args: ItemEventData) {
+        this.map.removeMarkers([2]);
+        this.searchPhrase = this.predictions[args.index].description;
+        this.displayAutocomplete = false;
+        console.log(`Index: ${args.index}; View: ${args.view} ; Item: ${this.item[args.index]}`);
+
+        this.googlePlacesAutoComplete.getPlaceById(this.predictions[args.index].placeId).then((place) => {
+            this.map.setCenter(
+                {
+                    lat: place.latitude, // mandatory
+                    lng: place.longitude, // mandatory
+                    animated: true // default true
+                }
+            )
+
+            const searchSpot = <MapboxMarker>{
+                id: 2,
+                lat: place.latitude,
+                lng: place.longitude,
+            };
+
+            this.map.addMarkers([
+                searchSpot,
+            ])
+        })
     }
 }

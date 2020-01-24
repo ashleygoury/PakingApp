@@ -18,11 +18,6 @@
         </ContentView>
     </StackLayout>
 
-    <StackLayout>
-        <!--        <SearchBar hint="Search here" class="transparent-area"></SearchBar>-->
-        <TextField class="transparent-area" hint="Search"></TextField>
-    </StackLayout>
-
     <StackLayout columns="auto, auto" orientation="horizontal" class="follow">
         <Label text="Follow me" verticalAlignment="center"></Label>
         <Switch [checked]="following" (checkedChange)="toggleFollowing($event)"></Switch>
@@ -36,6 +31,21 @@
         <StackLayout col="1" verticalAlignment="bottom" class="btn_save">
             <Button (tap)="saveParking()" [text]=btnName></Button>
         </StackLayout>
+    </StackLayout>
+
+    <StackLayout>
+        <SearchBar hint="{{searchPhrase}}" class="transparent-area"
+                   text="{{searchPhrase}}" (textChange)="onTextChanged($event)"
+                   (clear)="onClear($event)" (submit)="onSubmit($event)">
+        </SearchBar>
+        <GridLayout *ngIf="displayAutocomplete" class="transparent-area" height="70%">
+            <ListView [items]="predictions" class="list-group" (itemTap)="onItemTap($event)">
+                <ng-template let-item="item" let-index="index">
+                    <Label text="{{item.description}}"
+                           class="list-group-item"></Label>
+                </ng-template>
+            </ListView>
+        </GridLayout>
     </StackLayout>
 
 </GridLayout>
