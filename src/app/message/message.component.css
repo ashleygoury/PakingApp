@@ -37,11 +37,13 @@ Button {
     width: 100%;
 }
 
-Label, Button, .hint{
+Button, .hint {
     font-family: "Akronim", "Akronim-Regular";
-}
-
-Label {
     font-size: 25;
     font-weight: bold;
+}
+
+.error {
+    color: gray;
+    font-size: 15;
 }

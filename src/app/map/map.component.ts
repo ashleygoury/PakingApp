@@ -180,7 +180,6 @@ export class MapComponent implements OnInit {
             viewContainerRef: this.vcRef,
             context: {name: "name", message: "message"}
         }).then((result: string) => {
-            alert(result);
             console.log(result);
         });
     }

@@ -1,14 +1,54 @@
 <FlexboxLayout horizontalAlignment="left" width="80%">
     <StackLayout class="margin">
-        <Label text="Name: " width="100%"></Label>
-        <TextField hint="Firstname Surname" width="100%"></TextField>
+        <Label
+                text="Name: "
+                class="hint"
+                width="100%">
+        </Label>
+        <TextField
+                hint="Firstname Surname"
+                width="100%"
+                returnKeyType="next"
+                ngModel #title=ngModel
+                required>
+        </TextField>
+        <Label
+                *ngIf="!title.valid && title.touched"
+                class="error"
+                text="Please enter your name">
+        </Label>
     </StackLayout>
     <StackLayout class="margin">
-    <Label text="Message: " width="100%"></Label>
-    <TextView hint="Enter some text..." width="100%"></TextView>
+        <Label
+                text="Message: "
+                width="100%"
+                class="hint">
+        </Label>
+        <TextView
+                hint="Enter some text..."
+                width="100%"
+                returnKeyType="done"
+                ngModel #msg=ngModel
+                required>
+        </TextView>
+        <Label
+                *ngIf="!msg.valid && msg.touched"
+                class="error"
+                text="Please enter a message">
+        </Label>
     </StackLayout>
     <StackLayout orientation="horizontal">
-        <Button col="1" text="Cancel" class="cancel" (tap)="sendData('cancel')"></Button>
-        <Button col="0" text="Send" class="send" (tap)="sendData('send')"></Button>
+        <Button
+                col="1"
+                text="Cancel"
+                (tap)="goBack()"
+                class="cancel">
+        </Button>
+        <Button
+                col="0"
+                text="Send"
+                class="send"
+                (tap)="sendData(title.value, msg.value)">
+        </Button>
     </StackLayout>
 </FlexboxLayout>
