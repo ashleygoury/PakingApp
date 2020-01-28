@@ -36,3 +36,12 @@ Button {
     margin: 5;
     width: 100%;
 }
+
+Label, Button, .hint{
+    font-family: "Akronim", "Akronim-Regular";
+}
+
+Label {
+    font-size: 25;
+    font-weight: bold;
+}

@@ -15,3 +15,7 @@ refer to http://docs.nativescript.org/ui/theme.
     font-family: "Font Awesome 5 Free", "fa-solid-900";
     font-weight: 900;
 }
+
+.akronim {
+    font-family: "Akronim", "Akronim-Regular";
+}
