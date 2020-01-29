@@ -1,5 +1,4 @@
 import {Component, OnInit, ViewContainerRef} from '@angular/core';
-
 import {MapboxApi, MapboxMarker} from "nativescript-mapbox";
 import {registerElement} from 'nativescript-angular/element-registry';
 import {Page, PropertyChangeData} from "tns-core-modules/ui/page";
@@ -19,6 +18,7 @@ import {SearchBar} from "tns-core-modules/ui/search-bar";
 import {GooglePlacesAutocomplete} from 'nativescript-google-places-autocomplete';
 import {ItemEventData} from "tns-core-modules/ui/list-view";
 import {MsgService} from "~/app/shared/msg.service";
+import {GeolocationService} from "~/app/shared/geolocation.service";
 
 registerElement("Mapbox", () => require("nativescript-mapbox").MapboxView);
 
@@ -45,7 +45,11 @@ export class MapComponent implements OnInit {
     name: string;
     msg: string;
 
-    constructor(private page: Page, private modalDialog: ModalDialogService, private vcRef: ViewContainerRef, private msgService: MsgService) {
+    constructor(private page: Page,
+                private modalDialog: ModalDialogService,
+                private vcRef: ViewContainerRef,
+                private msgService: MsgService,
+                private geolocationService: GeolocationService) {
         this.cfalertDialog = new CFAlertDialog();
         this.directions = new Directions();
         this.googlePlacesAutoComplete = new GooglePlacesAutocomplete(this.API_KEY);
@@ -145,7 +149,7 @@ export class MapComponent implements OnInit {
     }
 
     saveParking() {
-        console.log(this.name, this.msg);
+        console.log(this.geolocationService.fetchSignLocation());
         if (!this.carPark) {
             this.carPark = true;
             this.btnName = "Find Car";
