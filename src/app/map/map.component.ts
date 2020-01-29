@@ -18,6 +18,7 @@ import {Accuracy} from "tns-core-modules/ui/enums";
 import {SearchBar} from "tns-core-modules/ui/search-bar";
 import {GooglePlacesAutocomplete} from 'nativescript-google-places-autocomplete';
 import {ItemEventData} from "tns-core-modules/ui/list-view";
+import {MsgService} from "~/app/shared/msg.service";
 
 registerElement("Mapbox", () => require("nativescript-mapbox").MapboxView);
 
@@ -41,9 +42,10 @@ export class MapComponent implements OnInit {
     item: string;
     searchPhrase: string;
     displayAutocomplete: boolean = false;
+    name: string;
+    msg: string;
 
-
-    constructor(private page: Page, private modalDialog: ModalDialogService, private vcRef: ViewContainerRef) {
+    constructor(private page: Page, private modalDialog: ModalDialogService, private vcRef: ViewContainerRef, private msgService: MsgService) {
         this.cfalertDialog = new CFAlertDialog();
         this.directions = new Directions();
         this.googlePlacesAutoComplete = new GooglePlacesAutocomplete(this.API_KEY);
@@ -51,6 +53,9 @@ export class MapComponent implements OnInit {
 
     ngOnInit() {
         this.page.actionBarHidden = true;
+
+        this.msgService.currentName.subscribe(name => this.name = name);
+        this.msgService.currentMsg.subscribe(msg => this.msg = msg);
 
         let that = this;
         geolocation.getCurrentLocation({
@@ -140,6 +145,7 @@ export class MapComponent implements OnInit {
     }
 
     saveParking() {
+        console.log(this.name, this.msg);
         if (!this.carPark) {
             this.carPark = true;
             this.btnName = "Find Car";
