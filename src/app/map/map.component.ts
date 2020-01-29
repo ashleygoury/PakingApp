@@ -190,7 +190,19 @@ export class MapComponent implements OnInit {
             viewContainerRef: this.vcRef,
             context: {name: "name", message: "message"}
         }).then((result: string) => {
-            console.log(result);
+            const parkingSpot = <MapboxMarker>{
+                id: 1,
+                lat: this.carParkLat,
+                lng: this.carParkLng,
+                title: this.name,
+                subtitle: this.msg,
+                selected: true,
+                onTap: marker => console.log("Marker tapped with title: '" + marker.title + "'")
+            };
+
+            this.map.addMarkers([
+                parkingSpot,
+            ])
         });
     }
 
