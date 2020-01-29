@@ -36,3 +36,14 @@ Button {
     margin: 5;
     width: 100%;
 }
+
+Button, .hint {
+    font-family: "Akronim", "Akronim-Regular";
+    font-size: 25;
+    font-weight: bold;
+}
+
+.error {
+    color: gray;
+    font-size: 15;
+}

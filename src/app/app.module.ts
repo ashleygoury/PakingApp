@@ -6,9 +6,11 @@ import { AppComponent } from "./app.component";
 
 import { MapComponent } from './map/map.component';
 import { MessageComponent } from './message/message.component';
+import {FormsModule} from "@angular/forms";
 
 // Uncomment and add to NgModule imports if you need to use two-way binding
-// import { NativeScriptFormsModule } from "nativescript-angular/forms";
+import { NativeScriptFormsModule } from "nativescript-angular/forms";
+import {NativeScriptCommonModule} from "nativescript-angular/common";
 
 // Uncomment and add to NgModule imports if you need to use the HttpClient wrapper
 // import { NativeScriptHttpClientModule } from "nativescript-angular/http-client";
@@ -19,7 +21,10 @@ import { MessageComponent } from './message/message.component';
     ],
     imports: [
         NativeScriptModule,
-        AppRoutingModule
+        AppRoutingModule,
+        FormsModule,
+        NativeScriptFormsModule,
+        NativeScriptCommonModule
     ],
     declarations: [
         AppComponent,
