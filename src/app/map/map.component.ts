@@ -19,6 +19,7 @@ import {GooglePlacesAutocomplete} from 'nativescript-google-places-autocomplete'
 import {ItemEventData} from "tns-core-modules/ui/list-view";
 import {MsgService} from "~/app/shared/msg.service";
 import {GeolocationService} from "~/app/shared/geolocation.service";
+import {GeolocationModel} from "~/app/model/geolocation.model";
 
 registerElement("Mapbox", () => require("nativescript-mapbox").MapboxView);
 
@@ -27,6 +28,7 @@ registerElement("Mapbox", () => require("nativescript-mapbox").MapboxView);
     templateUrl: './map.component.html',
     styleUrls: ['./map.component.css']
 })
+
 export class MapComponent implements OnInit {
     map: MapboxApi;
     following: boolean = false;
@@ -44,6 +46,7 @@ export class MapComponent implements OnInit {
     displayAutocomplete: boolean = false;
     name: string;
     msg: string;
+    signLocations: GeolocationModel[];
 
     constructor(private page: Page,
                 private modalDialog: ModalDialogService,
@@ -57,6 +60,8 @@ export class MapComponent implements OnInit {
 
     ngOnInit() {
         this.page.actionBarHidden = true;
+
+        this.getSignLocation();
 
         this.msgService.currentName.subscribe(name => this.name = name);
         this.msgService.currentMsg.subscribe(msg => this.msg = msg);
@@ -89,6 +94,7 @@ export class MapComponent implements OnInit {
     }
 
     toggleFollowing(args: PropertyChangeData): void {
+        this.signParking();
         if (args.value !== null && args.value !== this.following) {
             this.following = args.value;
             // adding a timeout so the switch has time to animate properly
@@ -149,7 +155,6 @@ export class MapComponent implements OnInit {
     }
 
     saveParking() {
-        console.log(this.geolocationService.fetchSignLocation());
         if (!this.carPark) {
             this.carPark = true;
             this.btnName = "Find Car";
@@ -256,5 +261,26 @@ export class MapComponent implements OnInit {
                 searchSpot,
             ])
         })
+    }
+
+    getSignLocation() {
+        this.geolocationService.getSignLocation()
+            .subscribe(signLocations => (this.signLocations = signLocations));
+    }
+
+    signParking() {
+        console.log(this.signLocations);
+        for (let i = 0; i < this.signLocations.length; i++) {
+            const parkingSpot = <MapboxMarker>{
+                id: i,
+                lat: this.signLocations[i].Latitude,
+                lng: this.signLocations[i].Longitude,
+                title: i.toString(),
+                subtitle: 'Tap for more option'
+            };
+            this.map.addMarkers([
+                parkingSpot,
+            ])
+        }
     }
 }

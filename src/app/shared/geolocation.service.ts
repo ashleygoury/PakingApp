@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {BehaviorSubject} from "rxjs";
+import {BehaviorSubject, Observable} from "rxjs";
 import {GeolocationModel} from "~/app/model/geolocation.model";
 import {HttpClient} from "@angular/common/http";
 
@@ -15,7 +15,7 @@ export class GeolocationService {
       return this._signLocation.asObservable();
   }
 
-  fetchSignLocation() {
-      return this.http.get<GeolocationModel>('https://parking-fetch.firebaseio.com/.json');
-  }
+    getSignLocation (): Observable<GeolocationModel[]> {
+        return this.http.get<GeolocationModel[]>('https://parking-fetch.firebaseio.com/.json');
+    }
 }
