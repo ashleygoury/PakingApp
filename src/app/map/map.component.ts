@@ -207,8 +207,7 @@ export class MapComponent implements OnInit, DoCheck {
                 lng: this.carParkLng,
                 title: this.name,
                 subtitle: this.msg,
-                selected: true,
-                onTap: marker => console.log("Marker tapped with title: '" + marker.title + "'")
+                icon: 'res://icon_msg'
             };
 
             this.map.addMarkers([
@@ -291,5 +290,24 @@ export class MapComponent implements OnInit, DoCheck {
             }
             this.firstRun = true;
         }
+    }
+
+    tryPolyline() {
+        this.map.addPolyline({
+            id: 1, // optional, can be used in 'removePolylines'
+            color: '#336699', // Set the color of the line (default black)
+            width: 7, // Set the width of the line (default 5)
+            opacity: 0.6, //Transparency / alpha, ranging 0-1. Default fully opaque (1).
+            points: [
+                {
+                    'lat': 45.594692, // mandatory
+                    'lng': -73.542475 // mandatory
+                },
+                {
+                    'lat': 45.594514,
+                    'lng': -73.541776
+                }
+            ]
+        });
     }
 }
