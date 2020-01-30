@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewContainerRef} from '@angular/core';
+import {Component, DoCheck, OnInit, ViewContainerRef} from '@angular/core';
 import {MapboxApi, MapboxMarker} from "nativescript-mapbox";
 import {registerElement} from 'nativescript-angular/element-registry';
 import {Page, PropertyChangeData} from "tns-core-modules/ui/page";
@@ -29,7 +29,7 @@ registerElement("Mapbox", () => require("nativescript-mapbox").MapboxView);
     styleUrls: ['./map.component.css']
 })
 
-export class MapComponent implements OnInit {
+export class MapComponent implements OnInit, DoCheck {
     map: MapboxApi;
     following: boolean = false;
     carParkLat: number;
@@ -47,6 +47,7 @@ export class MapComponent implements OnInit {
     name: string;
     msg: string;
     signLocations: GeolocationModel[];
+    firstRun: boolean = false;
 
     constructor(private page: Page,
                 private modalDialog: ModalDialogService,
@@ -81,6 +82,12 @@ export class MapComponent implements OnInit {
         });
     }
 
+    ngDoCheck() {
+        if (this.signLocations.length > 0) {
+            this.signParking();
+        }
+    }
+
     onMapReady(args) {
         this.map = args.map;
 
@@ -94,7 +101,6 @@ export class MapComponent implements OnInit {
     }
 
     toggleFollowing(args: PropertyChangeData): void {
-        this.signParking();
         if (args.value !== null && args.value !== this.following) {
             this.following = args.value;
             // adding a timeout so the switch has time to animate properly
@@ -269,18 +275,21 @@ export class MapComponent implements OnInit {
     }
 
     signParking() {
-        console.log(this.signLocations);
-        for (let i = 0; i < this.signLocations.length; i++) {
-            const parkingSpot = <MapboxMarker>{
-                id: i,
-                lat: this.signLocations[i].Latitude,
-                lng: this.signLocations[i].Longitude,
-                title: i.toString(),
-                subtitle: 'Tap for more option'
-            };
-            this.map.addMarkers([
-                parkingSpot,
-            ])
+        if (!this.firstRun) {
+            console.log("SignParking is running");
+            for (let i = 0; i < this.signLocations.length; i++) {
+                const parkingSpot = <MapboxMarker>{
+                    id: i,
+                    lat: this.signLocations[i].Latitude,
+                    lng: this.signLocations[i].Longitude,
+                    title: i.toString(),
+                    subtitle: 'Tap for more option'
+                };
+                this.map.addMarkers([
+                    parkingSpot,
+                ])
+            }
+            this.firstRun = true;
         }
     }
 }
