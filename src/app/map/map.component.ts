@@ -1,5 +1,4 @@
-import {Component, OnInit, ViewContainerRef} from '@angular/core';
-
+import {Component, DoCheck, OnInit, ViewContainerRef} from '@angular/core';
 import {MapboxApi, MapboxMarker} from "nativescript-mapbox";
 import {registerElement} from 'nativescript-angular/element-registry';
 import {Page, PropertyChangeData} from "tns-core-modules/ui/page";
@@ -19,6 +18,8 @@ import {SearchBar} from "tns-core-modules/ui/search-bar";
 import {GooglePlacesAutocomplete} from 'nativescript-google-places-autocomplete';
 import {ItemEventData} from "tns-core-modules/ui/list-view";
 import {MsgService} from "~/app/shared/msg.service";
+import {GeolocationService} from "~/app/shared/geolocation.service";
+import {GeolocationModel} from "~/app/model/geolocation.model";
 
 registerElement("Mapbox", () => require("nativescript-mapbox").MapboxView);
 
@@ -27,7 +28,8 @@ registerElement("Mapbox", () => require("nativescript-mapbox").MapboxView);
     templateUrl: './map.component.html',
     styleUrls: ['./map.component.css']
 })
-export class MapComponent implements OnInit {
+
+export class MapComponent implements OnInit, DoCheck {
     map: MapboxApi;
     following: boolean = false;
     carParkLat: number;
@@ -44,8 +46,14 @@ export class MapComponent implements OnInit {
     displayAutocomplete: boolean = false;
     name: string;
     msg: string;
+    signLocations: GeolocationModel[];
+    firstRun: boolean = false;
 
-    constructor(private page: Page, private modalDialog: ModalDialogService, private vcRef: ViewContainerRef, private msgService: MsgService) {
+    constructor(private page: Page,
+                private modalDialog: ModalDialogService,
+                private vcRef: ViewContainerRef,
+                private msgService: MsgService,
+                private geolocationService: GeolocationService) {
         this.cfalertDialog = new CFAlertDialog();
         this.directions = new Directions();
         this.googlePlacesAutoComplete = new GooglePlacesAutocomplete(this.API_KEY);
@@ -53,6 +61,8 @@ export class MapComponent implements OnInit {
 
     ngOnInit() {
         this.page.actionBarHidden = true;
+
+        this.getSignLocation();
 
         this.msgService.currentName.subscribe(name => this.name = name);
         this.msgService.currentMsg.subscribe(msg => this.msg = msg);
@@ -70,6 +80,12 @@ export class MapComponent implements OnInit {
         }, function (e) {
             console.log("Error: " + (e.message || e));
         });
+    }
+
+    ngDoCheck() {
+        if (this.signLocations.length > 0) {
+            this.signParking();
+        }
     }
 
     onMapReady(args) {
@@ -145,7 +161,6 @@ export class MapComponent implements OnInit {
     }
 
     saveParking() {
-        console.log(this.name, this.msg);
         if (!this.carPark) {
             this.carPark = true;
             this.btnName = "Find Car";
@@ -186,7 +201,19 @@ export class MapComponent implements OnInit {
             viewContainerRef: this.vcRef,
             context: {name: "name", message: "message"}
         }).then((result: string) => {
-            console.log(result);
+            const parkingSpot = <MapboxMarker>{
+                id: 1,
+                lat: this.carParkLat,
+                lng: this.carParkLng,
+                title: this.name,
+                subtitle: this.msg,
+                selected: true,
+                onTap: marker => console.log("Marker tapped with title: '" + marker.title + "'")
+            };
+
+            this.map.addMarkers([
+                parkingSpot,
+            ])
         });
     }
 
@@ -240,5 +267,29 @@ export class MapComponent implements OnInit {
                 searchSpot,
             ])
         })
+    }
+
+    getSignLocation() {
+        this.geolocationService.getSignLocation()
+            .subscribe(signLocations => (this.signLocations = signLocations));
+    }
+
+    signParking() {
+        if (!this.firstRun) {
+            console.log("SignParking is running");
+            for (let i = 0; i < this.signLocations.length; i++) {
+                const parkingSpot = <MapboxMarker>{
+                    id: i,
+                    lat: this.signLocations[i].Latitude,
+                    lng: this.signLocations[i].Longitude,
+                    title: i.toString(),
+                    subtitle: 'Tap for more option'
+                };
+                this.map.addMarkers([
+                    parkingSpot,
+                ])
+            }
+            this.firstRun = true;
+        }
     }
 }
