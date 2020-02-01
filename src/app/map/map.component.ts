@@ -20,6 +20,7 @@ import {ItemEventData} from "tns-core-modules/ui/list-view";
 import {MsgService} from "~/app/shared/msg.service";
 import {GeolocationService} from "~/app/shared/geolocation.service";
 import {GeolocationModel} from "~/app/model/geolocation.model";
+import {PolylineModel} from "~/app/model/polylineModel";
 
 registerElement("Mapbox", () => require("nativescript-mapbox").MapboxView);
 
@@ -47,6 +48,7 @@ export class MapComponent implements OnInit, DoCheck {
     name: string;
     msg: string;
     signLocations: GeolocationModel[];
+    polylines: any[];
     firstRun: boolean = false;
 
     constructor(private page: Page,
@@ -63,6 +65,7 @@ export class MapComponent implements OnInit, DoCheck {
         this.page.actionBarHidden = true;
 
         this.getSignLocation();
+        this.getPolylines();
 
         this.msgService.currentName.subscribe(name => this.name = name);
         this.msgService.currentMsg.subscribe(msg => this.msg = msg);
@@ -273,6 +276,11 @@ export class MapComponent implements OnInit, DoCheck {
             .subscribe(signLocations => (this.signLocations = signLocations));
     }
 
+    getPolylines() {
+        this.geolocationService.getPolylines()
+            .subscribe(polylines => (this.polylines = polylines));
+    }
+
     signParking() {
         if (!this.firstRun) {
             console.log("SignParking is running");
@@ -309,5 +317,37 @@ export class MapComponent implements OnInit, DoCheck {
                 }
             ]
         });
+    }
+
+    polylineParking() {
+        let that = this;
+        let keys = new Array();
+        let date = new Date();
+        let currentDay = date.getDay();
+        let currentHours = date.getHours();
+        let currentMonth = date.getMonth();
+
+        Object.keys(that.polylines).forEach(function (key) {
+            keys.push(key);
+        });
+
+        for (let i = 0; i < keys.length; i++) {
+            for (let j = 0; j < this.polylines[keys[i]].days.length; j++) {
+                let item = this.polylines[keys[i]];
+                let day = item.days[j];
+                let fullYear = item.allyear;
+                let startOneHour = day.timeOne.timeStartOne;
+                let endOneHour = day.timeOne.timeFinishOne;
+                let startTwoHour = day.timeOne.timeStartOne;
+                let endTwoHour = day.timeOne.timeFinishOne;
+                if (currentDay !== day && currentHours < startOneHour || currentHours > endOneHour && fullYear === true) {
+                    console.log("day check, firsthour check, fullyear check");
+                    if(startTwoHour !== null && endTwoHour !== null) {
+                        console.log("second time is null");
+                    }
+                }
+            }
+            console.log("next key");
+        }
     }
 }
