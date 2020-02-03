@@ -338,16 +338,29 @@ export class MapComponent implements OnInit, DoCheck {
                 let fullYear = item.allyear;
                 let startOneHour = day.timeOne.timeStartOne;
                 let endOneHour = day.timeOne.timeFinishOne;
-                let startTwoHour = day.timeOne.timeStartOne;
-                let endTwoHour = day.timeOne.timeFinishOne;
-                if (currentDay !== day && currentHours < startOneHour || currentHours > endOneHour && fullYear === true) {
-                    console.log("day check, firsthour check, fullyear check");
-                    if(startTwoHour !== null && endTwoHour !== null) {
-                        console.log("second time is null");
+                let startTwoHour = day.timeTwo.timeStartTwo;
+                let endTwoHour = day.timeTwo.timeFinishTwo;
+                console.log("Key: " + keys[i]);
+                if (currentDay !== (day-1) && (currentHours < startOneHour || currentHours > endOneHour) && (fullYear === true || (currentMonth <= 2 || currentMonth === 11))) {
+                    if (currentHours < startTwoHour || currentHours > endTwoHour) {
+                        this.map.addPolyline({
+                            color: '#008000', // Set the color of the line (default black)
+                            width: 12, // Set the width of the line (default 5)
+                            opacity: 0.6, //Transparency / alpha, ranging 0-1. Default fully opaque (1).
+                            points: [
+                                {
+                                    'lat': 45.594692, // mandatory
+                                    'lng': -73.542475 // mandatory
+                                },
+                                {
+                                    'lat': 45.594514,
+                                    'lng': -73.541776
+                                }
+                            ]
+                        });
                     }
                 }
             }
-            console.log("next key");
         }
     }
 }
