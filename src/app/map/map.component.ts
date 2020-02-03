@@ -300,6 +300,24 @@ export class MapComponent implements OnInit, DoCheck {
         }
     }
 
+    tryPolyline() {
+        this.map.addPolyline({
+            id: 1, // optional, can be used in 'removePolylines'
+            color: '#336699', // Set the color of the line (default black)
+            width: 7, // Set the width of the line (default 5)
+            opacity: 0.6, //Transparency / alpha, ranging 0-1. Default fully opaque (1).
+            points: [
+                {
+                    'lat': 45.594692, // mandatory
+                    'lng': -73.542475 // mandatory
+                },
+                {
+                    'lat': 45.594514,
+                    'lng': -73.541776
+                }
+            ]
+        });
+    }
 
     polylineParking() {
         let that = this;
@@ -318,22 +336,16 @@ export class MapComponent implements OnInit, DoCheck {
                 let item = this.polylines[keys[i]];
                 let day = item.days[j];
                 let fullYear = item.allyear;
-                let latStart = item.start.startLat;
-                let lngStart = item.start.startLng;
-                let latEnd = item.end.endLat;
-                let lngEnd = item.end.endLng;
                 let startOneHour = day.timeOne.timeStartOne;
                 let endOneHour = day.timeOne.timeFinishOne;
                 let startTwoHour = day.timeTwo.timeStartTwo;
                 let endTwoHour = day.timeTwo.timeFinishTwo;
-
                 console.log("Key: " + keys[i]);
                 if (currentDay !== (day-1) && (currentHours < startOneHour || currentHours > endOneHour) && (fullYear === true || (currentMonth <= 2 || currentMonth === 11))) {
                     if (currentHours < startTwoHour || currentHours > endTwoHour) {
-                        console.log(latStart, lngStart, latEnd, lngEnd);
                         this.map.addPolyline({
                             color: '#008000', // Set the color of the line (default black)
-                            width: 7, // Set the width of the line (default 5)
+                            width: 12, // Set the width of the line (default 5)
                             opacity: 0.6, //Transparency / alpha, ranging 0-1. Default fully opaque (1).
                             points: [
                                 {
