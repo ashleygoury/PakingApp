@@ -20,7 +20,6 @@ import {ItemEventData} from "tns-core-modules/ui/list-view";
 import {MsgService} from "~/app/shared/msg.service";
 import {GeolocationService} from "~/app/shared/geolocation.service";
 import {GeolocationModel} from "~/app/model/geolocation.model";
-import {PolylineModel} from "~/app/model/polylineModel";
 
 registerElement("Mapbox", () => require("nativescript-mapbox").MapboxView);
 
@@ -87,7 +86,7 @@ export class MapComponent implements OnInit, DoCheck {
 
     ngDoCheck() {
         if (this.signLocations.length > 0) {
-            this.signParking();
+            this.polylineParking();
         }
     }
 
@@ -281,29 +280,9 @@ export class MapComponent implements OnInit, DoCheck {
             .subscribe(polylines => (this.polylines = polylines));
     }
 
-    signParking() {
-        if (!this.firstRun) {
-            console.log("SignParking is running");
-            for (let i = 0; i < this.signLocations.length; i++) {
-                const parkingSpot = <MapboxMarker>{
-                    id: i,
-                    lat: this.signLocations[i].Latitude,
-                    lng: this.signLocations[i].Longitude,
-                    title: i.toString(),
-                    subtitle: 'Tap for more option'
-                };
-                this.map.addMarkers([
-                    parkingSpot,
-                ])
-            }
-            this.firstRun = true;
-        }
-    }
-
-
     polylineParking() {
         let that = this;
-        let keys = new Array();
+        let keys = [];
         let date = new Date();
         let currentDay = date.getDay();
         let currentHours = date.getHours();
@@ -327,22 +306,22 @@ export class MapComponent implements OnInit, DoCheck {
                 let startTwoHour = day.timeTwo.timeStartTwo;
                 let endTwoHour = day.timeTwo.timeFinishTwo;
 
-                console.log("Key: " + keys[i]);
-                if (currentDay !== (day-1) && (currentHours < startOneHour || currentHours > endOneHour) && (fullYear === true || (currentMonth <= 2 || currentMonth === 11))) {
+                console.log("Key(inside loop)" + keys[i]);
+                if (currentDay !== day && (currentHours < startOneHour || currentHours > endOneHour) && (fullYear === true || (currentMonth <= 2 || currentMonth === 11))) {
                     if (currentHours < startTwoHour || currentHours > endTwoHour) {
                         console.log(latStart, lngStart, latEnd, lngEnd);
                         this.map.addPolyline({
-                            color: '#008000', // Set the color of the line (default black)
-                            width: 7, // Set the width of the line (default 5)
-                            opacity: 0.6, //Transparency / alpha, ranging 0-1. Default fully opaque (1).
+                            color: '#008000',
+                            width: 7,
+                            opacity: 0.6,
                             points: [
                                 {
-                                    'lat': 45.594692, // mandatory
-                                    'lng': -73.542475 // mandatory
+                                    'lat': latStart,
+                                    'lng': lngStart
                                 },
                                 {
-                                    'lat': 45.594514,
-                                    'lng': -73.541776
+                                    'lat': latEnd,
+                                    'lng': lngEnd
                                 }
                             ]
                         });

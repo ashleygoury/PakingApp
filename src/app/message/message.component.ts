@@ -1,13 +1,11 @@
-import {Component, OnInit, ViewContainerRef} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {ModalDialogParams, RouterExtensions} from "nativescript-angular";
-import {ReturnKeyType} from "tns-core-modules/ui/enums";
-import send = ReturnKeyType.send;
 import {MsgService} from "~/app/shared/msg.service";
 
 @Component({
-  selector: 'ns-message',
-  templateUrl: './message.component.html',
-  styleUrls: ['./message.component.css']
+    selector: 'ns-message',
+    templateUrl: './message.component.html',
+    styleUrls: ['./message.component.css']
 })
 export class MessageComponent implements OnInit {
     private loadedName: String;
@@ -15,14 +13,15 @@ export class MessageComponent implements OnInit {
     name: string;
     msg: string;
 
-  constructor(private modalDialogParams: ModalDialogParams, private router: RouterExtensions, private msgService: MsgService) { }
+    constructor(private modalDialogParams: ModalDialogParams, private router: RouterExtensions, private msgService: MsgService) {
+    }
 
-  ngOnInit() {
-      this.loadedName = (this.modalDialogParams.context as {name: string}).name;
-      this.loadedMessage = (this.modalDialogParams.context as {message: string}).message;
-      this.msgService.currentName.subscribe(name => this.name = name);
-      this.msgService.currentMsg.subscribe(msg => this.msg = msg);
-  }
+    ngOnInit() {
+        this.loadedName = (this.modalDialogParams.context as { name: string }).name;
+        this.loadedMessage = (this.modalDialogParams.context as { message: string }).message;
+        this.msgService.currentName.subscribe(name => this.name = name);
+        this.msgService.currentMsg.subscribe(msg => this.msg = msg);
+    }
 
     sendData(title: string, msg: string) {
         this.msgService.changeMessage(title, msg);
