@@ -19,8 +19,6 @@ import {GooglePlacesAutocomplete} from 'nativescript-google-places-autocomplete'
 import {ItemEventData} from "tns-core-modules/ui/list-view";
 import {MsgService} from "~/app/shared/msg.service";
 import {GeolocationService} from "~/app/shared/geolocation.service";
-import {GeolocationModel} from "~/app/model/geolocation.model";
-import {PolylineModel} from "~/app/model/polylineModel";
 
 registerElement("Mapbox", () => require("nativescript-mapbox").MapboxView);
 
@@ -47,7 +45,6 @@ export class MapComponent implements OnInit, DoCheck {
     displayAutocomplete: boolean = false;
     name: string;
     msg: string;
-    signLocations: GeolocationModel[];
     polylines: any[];
     firstRun: boolean = false;
 
@@ -64,7 +61,6 @@ export class MapComponent implements OnInit, DoCheck {
     ngOnInit() {
         this.page.actionBarHidden = true;
 
-        this.getSignLocation();
         this.getPolylines();
 
         this.msgService.currentName.subscribe(name => this.name = name);
@@ -86,8 +82,8 @@ export class MapComponent implements OnInit, DoCheck {
     }
 
     ngDoCheck() {
-        if (this.signLocations.length > 0) {
-            this.signParking();
+        if (this.polylines['-M-COJSKZ7jdLffLzzcQ'].days.length > 0) {
+            this.polylineParking();
         }
     }
 
@@ -209,8 +205,7 @@ export class MapComponent implements OnInit, DoCheck {
                 lat: this.carParkLat,
                 lng: this.carParkLng,
                 title: this.name,
-                subtitle: this.msg,
-                icon: 'res://icon_msg'
+                subtitle: this.msg
             };
 
             this.map.addMarkers([
@@ -271,96 +266,56 @@ export class MapComponent implements OnInit, DoCheck {
         })
     }
 
-    getSignLocation() {
-        this.geolocationService.getSignLocation()
-            .subscribe(signLocations => (this.signLocations = signLocations));
-    }
-
     getPolylines() {
         this.geolocationService.getPolylines()
             .subscribe(polylines => (this.polylines = polylines));
     }
 
-    signParking() {
-        if (!this.firstRun) {
-            console.log("SignParking is running");
-            for (let i = 0; i < this.signLocations.length; i++) {
-                const parkingSpot = <MapboxMarker>{
-                    id: i,
-                    lat: this.signLocations[i].Latitude,
-                    lng: this.signLocations[i].Longitude,
-                    title: i.toString(),
-                    subtitle: 'Tap for more option'
-                };
-                this.map.addMarkers([
-                    parkingSpot,
-                ])
-            }
-            this.firstRun = true;
-        }
-    }
-
-    tryPolyline() {
-        this.map.addPolyline({
-            id: 1, // optional, can be used in 'removePolylines'
-            color: '#336699', // Set the color of the line (default black)
-            width: 7, // Set the width of the line (default 5)
-            opacity: 0.6, //Transparency / alpha, ranging 0-1. Default fully opaque (1).
-            points: [
-                {
-                    'lat': 45.594692, // mandatory
-                    'lng': -73.542475 // mandatory
-                },
-                {
-                    'lat': 45.594514,
-                    'lng': -73.541776
-                }
-            ]
-        });
-    }
-
     polylineParking() {
-        let that = this;
-        let keys = new Array();
-        let date = new Date();
-        let currentDay = date.getDay();
-        let currentHours = date.getHours();
-        let currentMonth = date.getMonth();
+        if(!this.firstRun) {
+            let that = this;
+            let keys = [];
+            let date = new Date();
+            let currentDay = date.getDay();
+            let currentHours = date.getHours();
+            let currentMonth = date.getMonth();
 
-        Object.keys(that.polylines).forEach(function (key) {
-            keys.push(key);
-        });
+            Object.keys(that.polylines).forEach(function (key) {
+                keys.push(key);
+            });
 
-        for (let i = 0; i < keys.length; i++) {
-            for (let j = 0; j < this.polylines[keys[i]].days.length; j++) {
-                let item = this.polylines[keys[i]];
-                let day = item.days[j];
-                let fullYear = item.allyear;
-                let startOneHour = day.timeOne.timeStartOne;
-                let endOneHour = day.timeOne.timeFinishOne;
-                let startTwoHour = day.timeTwo.timeStartTwo;
-                let endTwoHour = day.timeTwo.timeFinishTwo;
-                console.log("Key: " + keys[i]);
-                if (currentDay !== (day-1) && (currentHours < startOneHour || currentHours > endOneHour) && (fullYear === true || (currentMonth <= 2 || currentMonth === 11))) {
-                    if (currentHours < startTwoHour || currentHours > endTwoHour) {
-                        this.map.addPolyline({
-                            color: '#008000', // Set the color of the line (default black)
-                            width: 12, // Set the width of the line (default 5)
-                            opacity: 0.6, //Transparency / alpha, ranging 0-1. Default fully opaque (1).
-                            points: [
-                                {
-                                    'lat': 45.594692, // mandatory
-                                    'lng': -73.542475 // mandatory
-                                },
-                                {
-                                    'lat': 45.594514,
-                                    'lng': -73.541776
-                                }
-                            ]
-                        });
+            for (let i = 0; i < keys.length; i++) {
+                for (let j = 0; j < this.polylines[keys[i]].days.length; j++) {
+                    let item = this.polylines[keys[i]];
+                    let day = item.days[j];
+                    let fullYear = item.allyear;
+                    let startOneHour = day.timeOne.timeStartOne;
+                    let endOneHour = day.timeOne.timeFinishOne;
+                    let startTwoHour = day.timeTwo.timeStartTwo;
+                    let endTwoHour = day.timeTwo.timeFinishTwo;
+                    console.log("Key: " + keys[i]);
+                    if (currentDay !== (day - 1) && (currentHours < startOneHour || currentHours > endOneHour) && (fullYear === true || (currentMonth <= 2 || currentMonth === 11))) {
+                        if (currentHours < startTwoHour || currentHours > endTwoHour) {
+                            this.map.addPolyline({
+                                color: '#008000', // Set the color of the line (default black)
+                                width: 12, // Set the width of the line (default 5)
+                                opacity: 0.6, //Transparency / alpha, ranging 0-1. Default fully opaque (1).
+                                points: [
+                                    {
+                                        'lat': 45.594692, // mandatory
+                                        'lng': -73.542475 // mandatory
+                                    },
+                                    {
+                                        'lat': 45.594514,
+                                        'lng': -73.541776
+                                    }
+                                ]
+                            });
+                        }
                     }
                 }
             }
         }
+        this.firstRun = true;
     }
 }
