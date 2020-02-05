@@ -121,15 +121,16 @@ export class MapComponent implements OnInit, DoCheck {
 
     showBottomSheet(): void {
         const deleteMarker = response => {
-            this.toggleParkText();
             this.map.removeMarkers([1]);
+            this.msgService.removeCarPark();
+            this.btnName = "Save Parking";
         };
 
         const doCurrentLocationToAddress = reponse => {
             this.directions.navigate({
                 to: {
-                    lat: this.carParkLat,
-                    lng: this.carParkLng
+                    lat: this.carParkData.lat,
+                    lng: this.carParkData.lng
                 },
                 type: "walking"
             }).then(() => {
@@ -159,11 +160,6 @@ export class MapComponent implements OnInit, DoCheck {
             ]
         };
         this.cfalertDialog.show(options);
-    }
-
-    toggleParkText() {
-        this.carParkData.carPark = false;
-        this.btnName = "Save Parking";
     }
 
     saveParking() {

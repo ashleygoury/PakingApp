@@ -24,8 +24,8 @@ export class MsgService {
         this.msgSoucre.next(msg);
     }
 
-    addCarPark(carPark: boolean, lat: number, lng: number) {
-        this.carParkData.carPark = true;
+    addCarPark(park: boolean, lat: number, lng: number) {
+        this.carParkData.carPark = park;
         this.carParkData.lat = lat;
         this.carParkData.lng = lng;
 
@@ -34,6 +34,10 @@ export class MsgService {
                     console.log(res);
                 }
             );
+    }
+
+    removeCarPark() {
+        this.addCarPark(false, 0, 0);
     }
 
     getPark(): Observable<any> {
