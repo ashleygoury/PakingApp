@@ -19,7 +19,6 @@ import {GooglePlacesAutocomplete} from 'nativescript-google-places-autocomplete'
 import {ItemEventData} from "tns-core-modules/ui/list-view";
 import {MsgService} from "~/app/shared/msg.service";
 import {GeolocationService} from "~/app/shared/geolocation.service";
-import {HttpClient} from "@angular/common/http";
 
 registerElement("Mapbox", () => require("nativescript-mapbox").MapboxView);
 
@@ -34,8 +33,7 @@ export class MapComponent implements OnInit, DoCheck {
     following: boolean = false;
     carParkLat: number;
     carParkLng: number;
-    carPark: boolean = false;
-    btnName: string = "Save Parking";
+    btnName: string;
     cfalertDialog: CFAlertDialog;
     directions: Directions;
     API_KEY = "AIzaSyAOYKrNk8B72AcOnF9SD3WjcemZHmuUcRY";
@@ -47,21 +45,14 @@ export class MapComponent implements OnInit, DoCheck {
     title: string;
     msg: string;
     polylines: any[];
+    carParkData: any;
     firstRun: boolean = false;
-    carParkData = {
-        "carPark": null,
-        "lat": null,
-        "lng" : null,
-        "title": null,
-        "subtitle" : null
-    };
 
     constructor(private page: Page,
                 private modalDialog: ModalDialogService,
                 private vcRef: ViewContainerRef,
                 private msgService: MsgService,
-                private geolocationService: GeolocationService,
-                private http: HttpClient) {
+                private geolocationService: GeolocationService) {
         this.cfalertDialog = new CFAlertDialog();
         this.directions = new Directions();
         this.googlePlacesAutoComplete = new GooglePlacesAutocomplete(this.API_KEY);
@@ -71,6 +62,7 @@ export class MapComponent implements OnInit, DoCheck {
         this.page.actionBarHidden = true;
 
         this.getPolylines();
+        this.getPark();
 
         this.msgService.currentName.subscribe(name => this.title = name);
         this.msgService.currentMsg.subscribe(msg => this.msg = msg);
@@ -93,6 +85,11 @@ export class MapComponent implements OnInit, DoCheck {
     ngDoCheck() {
         if (this.polylines['-M-COJSKZ7jdLffLzzcQ'].days.length > 0) {
             this.polylineParking();
+        }
+        if (this.carParkData.carPark === true) {
+            this.btnName = "Find Car";
+        } else {
+            this.btnName = "Save Parking";
         }
     }
 
@@ -164,13 +161,12 @@ export class MapComponent implements OnInit, DoCheck {
     }
 
     toggleParkText() {
-        this.carPark = false;
+        this.carParkData.carPark = false;
         this.btnName = "Save Parking";
     }
 
     saveParking() {
-        if (!this.carPark) {
-            this.carPark = true;
+        if (this.carParkData.carPark !== true) {
             this.btnName = "Find Car";
             const parkingSpot = <MapboxMarker>{
                 id: 1,
@@ -184,17 +180,7 @@ export class MapComponent implements OnInit, DoCheck {
                 }
             };
 
-            this.carParkData.carPark = true;
-            this.carParkData.lat = this.carParkLat;
-            this.carParkData.lng = this.carParkLng;
-            this.carParkData.title = "You park here!";
-            this.carParkData.subtitle = "Tap for more option";
-
-            this.http.put('https://parking-fetch.firebaseio.com/.json', this.carParkData)
-                .subscribe(res => {
-                        console.log(res);
-                    }
-                );
+            this.msgService.addCarPark(true, this.carParkLat, this.carParkLng);
 
             this.map.addMarkers([
                 parkingSpot,
@@ -291,56 +277,61 @@ export class MapComponent implements OnInit, DoCheck {
             .subscribe(polylines => (this.polylines = polylines));
     }
 
+    getPark() {
+        this.msgService.getPark()
+            .subscribe(carParkData => (this.carParkData = carParkData));
+    }
+
     polylineParking() {
-        // if(!this.firstRun) {
-        let that = this;
-        let keys = [];
-        let date = new Date();
-        let currentDay = date.getDay();
-        let currentHours = date.getHours();
-        let currentMonth = date.getMonth();
+        if (!this.firstRun) {
+            let that = this;
+            let keys = [];
+            let date = new Date();
+            let currentDay = date.getDay();
+            let currentHours = date.getHours();
+            let currentMonth = date.getMonth();
 
-        Object.keys(that.polylines).forEach(function (key) {
-            keys.push(key);
-        });
+            Object.keys(that.polylines).forEach(function (key) {
+                keys.push(key);
+            });
 
-        for (let i = 0; i < keys.length; i++) {
-            for (let j = 0; j < this.polylines[keys[i]].days.length; j++) {
-                let item = this.polylines[keys[i]];
-                let day = item.days[j];
-                let fullYear = item.allyear;
-                let latStart = item.start.startLat;
-                let lngStart = item.start.startLng;
-                let latEnd = item.end.endLat;
-                let lngEnd = item.end.endLng;
-                let startOneHour = day.timeOne.timeStartOne;
-                let endOneHour = day.timeOne.timeFinishOne;
-                let startTwoHour = day.timeTwo.timeStartTwo;
-                let endTwoHour = day.timeTwo.timeFinishTwo;
-                console.log("Key: " + keys[i]);
-                if (currentDay !== day && (currentHours < startOneHour || currentHours > endOneHour) && (fullYear === true || (currentMonth <= 2 || currentMonth === 11))) {
-                    if (currentHours < startTwoHour || currentHours > endTwoHour) {
-                        console.log(latStart, lngStart, latEnd, lngEnd);
-                        this.map.addPolyline({
-                            color: '#008000',
-                            width: 7,
-                            opacity: 0.6,
-                            points: [
-                                {
-                                    'lat': latStart,
-                                    'lng': lngStart
-                                },
-                                {
-                                    'lat': latEnd,
-                                    'lng': lngEnd
-                                }
-                            ]
-                        });
+            for (let i = 0; i < keys.length; i++) {
+                for (let j = 0; j < this.polylines[keys[i]].days.length; j++) {
+                    let item = this.polylines[keys[i]];
+                    let day = item.days[j];
+                    let fullYear = item.allyear;
+                    let latStart = item.start.startLat;
+                    let lngStart = item.start.startLng;
+                    let latEnd = item.end.endLat;
+                    let lngEnd = item.end.endLng;
+                    let startOneHour = day.timeOne.timeStartOne;
+                    let endOneHour = day.timeOne.timeFinishOne;
+                    let startTwoHour = day.timeTwo.timeStartTwo;
+                    let endTwoHour = day.timeTwo.timeFinishTwo;
+                    console.log("Key: " + keys[i]);
+                    if (currentDay !== day && (currentHours < startOneHour || currentHours > endOneHour) && (fullYear === true || (currentMonth <= 2 || currentMonth === 11))) {
+                        if (currentHours < startTwoHour || currentHours > endTwoHour) {
+                            console.log(latStart, lngStart, latEnd, lngEnd);
+                            this.map.addPolyline({
+                                color: '#008000',
+                                width: 7,
+                                opacity: 0.6,
+                                points: [
+                                    {
+                                        'lat': latStart,
+                                        'lng': lngStart
+                                    },
+                                    {
+                                        'lat': latEnd,
+                                        'lng': lngEnd
+                                    }
+                                ]
+                            });
+                        }
                     }
                 }
             }
         }
-        // }
         this.firstRun = true;
     }
 }
