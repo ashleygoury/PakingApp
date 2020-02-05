@@ -1,7 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject, Observable} from "rxjs";
 import {HttpClient} from "@angular/common/http";
-import {CarPark} from "~/app/model/carPark";
 
 @Injectable({
     providedIn: 'root'
@@ -14,9 +13,7 @@ export class MsgService {
     carParkData = {
         "carPark": null,
         "lat": null,
-        "lng": null,
-        "title": null,
-        "subtitle": null
+        "lng": null
     };
 
     constructor(private http: HttpClient) {
@@ -31,8 +28,6 @@ export class MsgService {
         this.carParkData.carPark = true;
         this.carParkData.lat = lat;
         this.carParkData.lng = lng;
-        this.carParkData.subtitle = "Tap for more option";
-        this.carParkData.title = "You park here";
 
         this.http.put('https://parking-fetch.firebaseio.com/.json', this.carParkData)
             .subscribe(res => {

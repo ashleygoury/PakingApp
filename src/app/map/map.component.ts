@@ -33,7 +33,7 @@ export class MapComponent implements OnInit, DoCheck {
     following: boolean = false;
     carParkLat: number;
     carParkLng: number;
-    btnName: string;
+    btnName: string = "Save Parking";
     cfalertDialog: CFAlertDialog;
     directions: Directions;
     API_KEY = "AIzaSyAOYKrNk8B72AcOnF9SD3WjcemZHmuUcRY";
@@ -47,6 +47,7 @@ export class MapComponent implements OnInit, DoCheck {
     polylines: any[];
     carParkData: any;
     firstRun: boolean = false;
+    parkCheck: boolean = false;
 
     constructor(private page: Page,
                 private modalDialog: ModalDialogService,
@@ -86,10 +87,10 @@ export class MapComponent implements OnInit, DoCheck {
         if (this.polylines['-M-COJSKZ7jdLffLzzcQ'].days.length > 0) {
             this.polylineParking();
         }
-        if (this.carParkData.carPark === true) {
+        if (this.carParkData.carPark === true && this.parkCheck === false) {
             this.btnName = "Find Car";
-        } else {
-            this.btnName = "Save Parking";
+            this.placeParkCar(this.carParkData.lat, this.carParkData.lng);
+            this.parkCheck = true;
         }
     }
 
@@ -167,30 +168,13 @@ export class MapComponent implements OnInit, DoCheck {
 
     saveParking() {
         if (this.carParkData.carPark !== true) {
-            this.btnName = "Find Car";
-            const parkingSpot = <MapboxMarker>{
-                id: 1,
-                lat: this.carParkLat,
-                lng: this.carParkLng,
-                title: 'Yor park here!',
-                subtitle: 'Tap for more option',
-                selected: true,
-                onCalloutTap: () => {
-                    this.showBottomSheet();
-                }
-            };
-
+            this.placeParkCar(this.carParkLat, this.carParkLng);
             this.msgService.addCarPark(true, this.carParkLat, this.carParkLng);
-
-            this.map.addMarkers([
-                parkingSpot,
-            ])
-
         } else {
             this.map.animateCamera({
                 target: {
-                    lat: this.carParkLat,
-                    lng: this.carParkLng
+                    lat: this.carParkData.lat,
+                    lng: this.carParkData.lng
                 },
                 zoomLevel: 17,
                 bearing: 270,
@@ -280,6 +264,25 @@ export class MapComponent implements OnInit, DoCheck {
     getPark() {
         this.msgService.getPark()
             .subscribe(carParkData => (this.carParkData = carParkData));
+    }
+
+    placeParkCar(lat, lng) {
+        this.btnName = "Find Car";
+        const parkingSpot = <MapboxMarker>{
+            id: 1,
+            lat: lat,
+            lng: lng,
+            title: 'Yor park here!',
+            subtitle: 'Tap for more option',
+            selected: true,
+            onCalloutTap: () => {
+                this.showBottomSheet();
+            }
+        };
+
+        this.map.addMarkers([
+            parkingSpot,
+        ])
     }
 
     polylineParking() {
