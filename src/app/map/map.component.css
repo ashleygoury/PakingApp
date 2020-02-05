@@ -37,19 +37,28 @@
 }
 
 .btn_save {
-    color: white;
-    margin-bottom: 40;
-    width: 50%;
-}
-
-.btn_save Button {
     background-color: #3ACCE1;
     font-size: 22;
     font-weight: 800;
     border-radius: 20;
+    color: white;
+    height: 50;
+    width: 50%;
 }
 
 .btn_save Button:highlighted {
     background-color: white;
     color: #3ACCE1;
+}
+
+.showSign {
+    background-color: #3ACCE1;
+    color: white;
+    font-size: 22;
+    font-weight: 800;
+    border-radius: 16;
+    height: 45;
+    width: 140;
+    padding-left: 13;
+    padding-top: 6;
 }

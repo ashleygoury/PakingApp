@@ -1,7 +1,7 @@
 import {Component, DoCheck, OnInit, ViewContainerRef} from '@angular/core';
 import {MapboxApi, MapboxMarker} from "nativescript-mapbox";
 import {registerElement} from 'nativescript-angular/element-registry';
-import {Page, PropertyChangeData} from "tns-core-modules/ui/page";
+import {EventData, Page, PropertyChangeData} from "tns-core-modules/ui/page";
 import {
     CFAlertActionAlignment,
     CFAlertActionStyle,
@@ -19,6 +19,7 @@ import {GooglePlacesAutocomplete} from 'nativescript-google-places-autocomplete'
 import {ItemEventData} from "tns-core-modules/ui/list-view";
 import {MsgService} from "~/app/shared/msg.service";
 import {GeolocationService} from "~/app/shared/geolocation.service";
+import {Switch} from "tns-core-modules/ui/switch";
 
 registerElement("Mapbox", () => require("nativescript-mapbox").MapboxView);
 
@@ -117,6 +118,12 @@ export class MapComponent implements OnInit, DoCheck {
                 });
             }, 200);
         }
+    }
+
+    toggleSign(args: EventData): void {
+        let sw = args.object as Switch;
+        let isChecked = sw.checked;
+        console.log(isChecked);
     }
 
     showBottomSheet(): void {
@@ -332,5 +339,9 @@ export class MapComponent implements OnInit, DoCheck {
             }
         }
         this.firstRun = true;
+    }
+
+    showSigns() {
+
     }
 }

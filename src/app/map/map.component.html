@@ -23,15 +23,19 @@
         <Switch [checked]="following" (checkedChange)="toggleFollowing($event)"></Switch>
     </StackLayout>
 
-    <StackLayout columns="auto, *" orientation="horizontal">
-        <Button (tap)="onLeaveMessage()" col="0" class="round-square" verticalAlignment="bottom"
-                horizontalAlignment="left">
+    <GridLayout columns="auto, *" rows="*, *" orientation="horizontal" verticalAlignment="bottom">
+        <Button rowSpan="2" col="0" row="0" (tap)="onLeaveMessage()" class="round-square" horizontalAlignment="left">
             <Span class="fas" text="&#xf27a;"></Span>
         </Button>
-        <StackLayout col="1" verticalAlignment="bottom" class="btn_save">
-            <Button (tap)="saveParking()" [text]=btnName class="akronim"></Button>
+        <Button row="0" col="1" (tap)="saveParking()" [text]=btnName class="akronim btn_save"></Button>
+        <StackLayout row="1" col="1" class="showSign">
+            <StackLayout width="100%" columns="auto, auto" orientation="horizontal" class="akronim">
+                <Label text="Show signs" verticalAlignment="center"></Label>
+                <Switch [checked]="showSign" (checkedChange)="toggleSign($event)"></Switch>
+            </StackLayout>
         </StackLayout>
-    </StackLayout>
+        <!--        <Button row="1" col="1" (tap)="saveParking()" [text]=btnName class="akronim btn_save"></Button>-->
+    </GridLayout>
 
     <StackLayout>
         <SearchBar hint="{{searchPhrase}}" class="transparent-area"
