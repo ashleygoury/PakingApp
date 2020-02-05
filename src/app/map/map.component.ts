@@ -297,17 +297,17 @@ export class MapComponent implements OnInit, DoCheck {
                     if (currentDay !== (day - 1) && (currentHours < startOneHour || currentHours > endOneHour) && (fullYear === true || (currentMonth <= 2 || currentMonth === 11))) {
                         if (currentHours < startTwoHour || currentHours > endTwoHour) {
                             this.map.addPolyline({
-                                color: '#008000', // Set the color of the line (default black)
-                                width: 12, // Set the width of the line (default 5)
-                                opacity: 0.6, //Transparency / alpha, ranging 0-1. Default fully opaque (1).
+                                color: '#008000',
+                                width: 7,
+                                opacity: 0.6,
                                 points: [
                                     {
-                                        'lat': 45.594692, // mandatory
-                                        'lng': -73.542475 // mandatory
+                                        'lat': startOneHour,
+                                        'lng': endOneHour
                                     },
                                     {
-                                        'lat': 45.594514,
-                                        'lng': -73.541776
+                                        'lat': startTwoHour,
+                                        'lng': endTwoHour
                                     }
                                 ]
                             });
