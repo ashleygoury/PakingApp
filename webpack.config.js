@@ -153,7 +153,7 @@ module.exports = env => {
             splitChunks: {
                 cacheGroups: {
                     vendor: {
-                        name: "vendor",
+                        title: "vendor",
                         chunks: "all",
                         test: (module, chunks) => {
                             const moduleName = module.nameForCondition ? module.nameForCondition() : '';
