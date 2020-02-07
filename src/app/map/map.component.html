@@ -31,7 +31,7 @@
         <StackLayout row="1" col="1" class="showSign">
             <StackLayout width="100%" columns="auto, auto" orientation="horizontal" class="akronim">
                 <Label text="Show signs" verticalAlignment="center"></Label>
-                <Switch [checked]="showSign" (checkedChange)="toggleSign($event)"></Switch>
+                <Switch (checkedChange)="toggleSign($event)"></Switch>
             </StackLayout>
         </StackLayout>
         <!--        <Button row="1" col="1" (tap)="saveParking()" [text]=btnName class="akronim btn_save"></Button>-->
@@ -52,4 +52,5 @@
         </GridLayout>
     </StackLayout>
 
+    <ActivityIndicator rowSpan="2" [busy]="isBusy"></ActivityIndicator>
 </GridLayout>

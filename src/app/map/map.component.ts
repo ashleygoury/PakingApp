@@ -20,6 +20,8 @@ import {ItemEventData} from "tns-core-modules/ui/list-view";
 import {MsgService} from "~/app/shared/msg.service";
 import {GeolocationService} from "~/app/shared/geolocation.service";
 import {Switch} from "tns-core-modules/ui/switch";
+import {setInterval} from "tns-core-modules/timer";
+import {HttpClient} from "@angular/common/http";
 
 registerElement("Mapbox", () => require("nativescript-mapbox").MapboxView);
 
@@ -49,11 +51,14 @@ export class MapComponent implements OnInit, DoCheck {
     carParkData: any;
     firstRun: boolean = false;
     parkCheck: boolean = false;
+    signLocations: any[];
+    isBusy: boolean = false;
 
     constructor(private page: Page,
                 private modalDialog: ModalDialogService,
                 private vcRef: ViewContainerRef,
                 private msgService: MsgService,
+                private http: HttpClient,
                 private geolocationService: GeolocationService) {
         this.cfalertDialog = new CFAlertDialog();
         this.directions = new Directions();
@@ -65,6 +70,7 @@ export class MapComponent implements OnInit, DoCheck {
 
         this.getPolylines();
         this.getPark();
+        this.getSignLocation();
 
         this.msgService.currentName.subscribe(name => this.title = name);
         this.msgService.currentMsg.subscribe(msg => this.msg = msg);
@@ -118,12 +124,6 @@ export class MapComponent implements OnInit, DoCheck {
                 });
             }, 200);
         }
-    }
-
-    toggleSign(args: EventData): void {
-        let sw = args.object as Switch;
-        let isChecked = sw.checked;
-        console.log(isChecked);
     }
 
     showBottomSheet(): void {
@@ -341,7 +341,48 @@ export class MapComponent implements OnInit, DoCheck {
         this.firstRun = true;
     }
 
-    showSigns() {
+    getSignLocation() {
+        this.geolocationService.getSignLocation()
+            .subscribe(signLocations => (this.signLocations = signLocations));
+    }
 
+    toggleSign(args: EventData): void {
+        let that = this;
+        this.isBusy = !this.isBusy;
+
+        setInterval(function () {
+            let sw = args.object as Switch;
+            let isChecked = sw.checked;
+            let keys = [];
+
+            Object.keys(that.signLocations).forEach(function (key) {
+                keys.push(key);
+            });
+
+
+            if (isChecked === true) {
+                for (let i = 0; i < keys.length; i++) {
+                    let item = that.signLocations[keys[i]];
+                    const parkingSpot = <MapboxMarker>{
+                        id: keys[i],
+                        lat: item.Latitude,
+                        lng: item.Longitude,
+                        title: item.DESCRIPTION_RPA,
+                        subtitle: keys[i],
+                        onCalloutTap: () => {
+                            console.log("TESTING");
+                        }
+                    };
+                    that.map.addMarkers([
+                        parkingSpot,
+                    ])
+                }
+            } else {
+                for (let i = 0; i < keys.length; i++) {
+                    that.map.removeMarkers(keys[i]);
+                }
+            }
+            that.isBusy = false
+        }, 5000);
     }
 }

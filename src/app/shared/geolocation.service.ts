@@ -13,4 +13,9 @@ export class GeolocationService {
     getPolylines(): Observable<any[]> {
         return this.http.get<any[]>('https://data-polyline.firebaseio.com/.json');
     }
+
+    getSignLocation(): Observable<any[]> {
+        return this.http.get<any[]>('https://select-sign.firebaseio.com/.json');
+    }
+
 }
