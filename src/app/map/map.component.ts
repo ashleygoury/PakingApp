@@ -22,6 +22,8 @@ import {GeolocationService} from "~/app/shared/geolocation.service";
 import {Switch} from "tns-core-modules/ui/switch";
 import {setInterval} from "tns-core-modules/timer";
 import {HttpClient} from "@angular/common/http";
+import {LocalNotifications} from "nativescript-local-notifications";
+
 
 registerElement("Mapbox", () => require("nativescript-mapbox").MapboxView);
 
@@ -126,7 +128,7 @@ export class MapComponent implements OnInit, DoCheck {
         }
     }
 
-    showBottomSheet(): void {
+    showBottomSheetCarPark(): void {
         const deleteMarker = response => {
             this.map.removeMarkers([1]);
             this.msgService.removeCarPark();
@@ -163,6 +165,62 @@ export class MapComponent implements OnInit, DoCheck {
                     buttonStyle: CFAlertActionStyle.NEGATIVE,
                     buttonAlignment: CFAlertActionAlignment.JUSTIFIED,
                     onClick: deleteMarker
+                },
+            ]
+        };
+        this.cfalertDialog.show(options);
+    }
+
+    showBottomSheet(lat, lng): void {
+        const notify = response => {
+            LocalNotifications.schedule([{
+                id: 1,
+                title: 'Sound & Badge',
+                body: 'Who needs a push service anyway?',
+                badge: 1,
+                at: new Date(new Date().getTime() + (5 * 1000)) // 5 seconds from now
+            }]);
+
+            // adding a handler, so we can do something with the received notification.. in this case an alert
+            LocalNotifications.addOnMessageReceivedCallback(data => {
+                alert({
+                    title: "Local Notification received",
+                    message: `id: '${data.id}', title: '${data.title}'.`,
+                    okButtonText: "Roger that"
+                });
+            });
+        };
+
+        const doCurrentLocationToAddress = reponse => {
+            this.directions.navigate({
+                to: {
+                    lat: lat,
+                    lng: lng
+                },
+                type: "walking"
+            }).then(() => {
+                console.log("Current location to address directions launched!");
+            }, (err) => {
+                alert(err);
+            });
+        };
+
+        const options: DialogOptions = {
+            dialogStyle: CFAlertStyle.BOTTOM_SHEET,
+            title: "Please select an option",
+            message: "Go back or tap on screen to cancel",
+            buttons: [
+                {
+                    text: "Direction to this sign",
+                    buttonStyle: CFAlertActionStyle.POSITIVE,
+                    buttonAlignment: CFAlertActionAlignment.JUSTIFIED,
+                    onClick: doCurrentLocationToAddress
+                },
+                {
+                    text: "Notify me 30 min before this sign became effective",
+                    buttonStyle: CFAlertActionStyle.NEGATIVE,
+                    buttonAlignment: CFAlertActionAlignment.JUSTIFIED,
+                    onClick: notify
                 },
             ]
         };
@@ -279,7 +337,7 @@ export class MapComponent implements OnInit, DoCheck {
             subtitle: 'Tap for more option',
             selected: true,
             onCalloutTap: () => {
-                this.showBottomSheet();
+                this.showBottomSheetCarPark();
             }
         };
 
@@ -353,24 +411,17 @@ export class MapComponent implements OnInit, DoCheck {
         setInterval(function () {
             let sw = args.object as Switch;
             let isChecked = sw.checked;
-            let keys = [];
-
-            Object.keys(that.signLocations).forEach(function (key) {
-                keys.push(key);
-            });
-
 
             if (isChecked === true) {
-                for (let i = 0; i < keys.length; i++) {
-                    let item = that.signLocations[keys[i]];
+                for (let i = 0; i < that.signLocations.length; i++) {
                     const parkingSpot = <MapboxMarker>{
-                        id: keys[i],
-                        lat: item.Latitude,
-                        lng: item.Longitude,
-                        title: item.DESCRIPTION_RPA,
-                        subtitle: keys[i],
+                        id: i,
+                        lat: that.signLocations[i].Latitude,
+                        lng: that.signLocations[i].Longitude,
+                        title: that.signLocations[i].DESCRIPTION_RPA,
+                        subtitle: i.toString(),
                         onCalloutTap: () => {
-                            console.log("TESTING");
+                            that.showBottomSheet(that.signLocations[i].Latitude.Latitude, that.signLocations[i].Latitude.Longitude);
                         }
                     };
                     that.map.addMarkers([
@@ -378,8 +429,8 @@ export class MapComponent implements OnInit, DoCheck {
                     ])
                 }
             } else {
-                for (let i = 0; i < keys.length; i++) {
-                    that.map.removeMarkers(keys[i]);
+                for (let i = 0; i < that.signLocations.length; i++) {
+                    that.map.removeMarkers(i);
                 }
             }
             that.isBusy = false

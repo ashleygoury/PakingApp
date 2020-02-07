@@ -15,7 +15,7 @@ export class GeolocationService {
     }
 
     getSignLocation(): Observable<any[]> {
-        return this.http.get<any[]>('https://select-sign.firebaseio.com/.json');
+        return this.http.get<any[]>('https://parking-signs-4e32c.firebaseio.com/.json');
     }
 
 }
