@@ -171,14 +171,29 @@ export class MapComponent implements OnInit, DoCheck {
         this.cfalertDialog.show(options);
     }
 
-    showBottomSheet(lat, lng): void {
+    showBottomSheet(lat, lng, fullYear, timeStart, minStart, days): void {
+        let date = new Date();
+        let notifyMe;
+
+        if (fullYear === true || (date.getMonth() <= 2 || date.getMonth() === 11)) {
+            for (let i = 0; i < days.length; i++) {
+                if (date.getDay() === days[i].Day) {
+                    if (date.getHours() < timeStart && minStart === 0) {
+                        notifyMe = new Date(date.getFullYear(), date.getMonth(), date.getDate(), timeStart - 1, minStart + 30);
+                    } else if (date.getHours() < timeStart && minStart === 30) {
+                        notifyMe = new Date(date.getFullYear(), date.getMonth(), date.getDate(), timeStart);
+                    }
+                }
+            }
+        }
+
         const notify = response => {
             LocalNotifications.schedule([{
                 id: 1,
                 title: 'Sound & Badge',
                 body: 'Who needs a push service anyway?',
                 badge: 1,
-                at: new Date(new Date().getTime() + (5 * 1000)) // 5 seconds from now
+                at: notifyMe
             }]);
 
             // adding a handler, so we can do something with the received notification.. in this case an alert
@@ -290,7 +305,10 @@ export class MapComponent implements OnInit, DoCheck {
         this.displayAutocomplete = false;
     }
 
-    onItemTap(args: ItemEventData) {
+    onItemTap(args
+                  :
+                  ItemEventData
+    ) {
         this.map.removeMarkers([2]);
         this.searchPhrase = this.predictions[args.index].description;
         this.displayAutocomplete = false;
@@ -404,7 +422,8 @@ export class MapComponent implements OnInit, DoCheck {
             .subscribe(signLocations => (this.signLocations = signLocations));
     }
 
-    toggleSign(args: EventData): void {
+    toggleSign(args: EventData):
+        void {
         let that = this;
         this.isBusy = !this.isBusy;
 
@@ -412,16 +431,43 @@ export class MapComponent implements OnInit, DoCheck {
             let sw = args.object as Switch;
             let isChecked = sw.checked;
 
+            //////////////////
+            let keys = [];
+
+            Object.keys(that.signLocations).forEach(function (key) {
+                keys.push(key);
+            });
+            ////////////////////
+
+            // id: i,
+            //     lat: that.signLocations[i].Latitude,
+            //     lng: that.signLocations[i].Longitude,
+            //     title: that.signLocations[i].DESCRIPTION_RPA,
+            //     subtitle: i.toString(),
+
+            // that.showBottomSheet(that.signLocations[i].Latitude,
+            //     that.signLocations[i].Longitude,
+            //     that.signLocations[i].FullYear,
+            //     that.signLocations[i].TimeStart,
+            //     that.signLocations[i].MinStart,
+            //     that.signLocations[i].Days);
+
             if (isChecked === true) {
-                for (let i = 0; i < that.signLocations.length; i++) {
+                for (let i = 0; i < keys.length; i++) {
+                    let item = that.signLocations[keys[i]];
                     const parkingSpot = <MapboxMarker>{
-                        id: i,
-                        lat: that.signLocations[i].Latitude,
-                        lng: that.signLocations[i].Longitude,
-                        title: that.signLocations[i].DESCRIPTION_RPA,
-                        subtitle: i.toString(),
+                        id: keys[i],
+                        lat: item.Latitude,
+                        lng: item.Longitude,
+                        title: item.DESCRIPTION_RPA,
+                        subtitle: keys[i],
                         onCalloutTap: () => {
-                            that.showBottomSheet(that.signLocations[i].Latitude.Latitude, that.signLocations[i].Latitude.Longitude);
+                            that.showBottomSheet(item.Latitude,
+                                item.Longitude,
+                                item.FullYear,
+                                item.TimeStart,
+                                item.MinStart,
+                                item.Days);
                         }
                     };
                     that.map.addMarkers([
