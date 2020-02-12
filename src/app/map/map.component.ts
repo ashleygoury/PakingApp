@@ -179,11 +179,7 @@ export class MapComponent implements OnInit, DoCheck {
         let dayOfNotify;
 
         let difference;
-        let newDate;
-        let newDateFormat;
         let arrayOfDays = [];
-        let newDateAddSevenDays;
-        let newDateFormatWithSeven;
 
         if (fullYear === true || (date.getMonth() <= 2 || date.getMonth() === 11)) {
 
@@ -194,15 +190,6 @@ export class MapComponent implements OnInit, DoCheck {
                         notifyMe = new Date(date.getFullYear(), date.getMonth(), date.getDate(), timeStart - 1, minStart + 30);
                     } else if (date.getHours() < timeStart && minStart === 30) {
                         notifyMe = new Date(date.getFullYear(), date.getMonth(), date.getDate(), timeStart);
-                        // } else if (date.getHours() > timeEnd) {
-                        //     newDateAddSevenDays = date.setDate(date.getDate() + 7);
-                        //     newDateFormatWithSeven = new Date(newDateAddSevenDays);
-                        //     if (minStart === 0) {
-                        //         notifyMe = new Date(newDateFormatWithSeven.getFullYear(), newDateFormatWithSeven.getMonth(), newDateFormatWithSeven.getDate(), timeStart - 1, minStart + 30);
-                        //     } else {
-                        //         notifyMe = new Date(newDateFormatWithSeven.getFullYear(), newDateFormatWithSeven.getMonth(), newDateFormatWithSeven.getDate(), timeStart);
-                        //     }
-                        // }
                     }
                 }
             }
@@ -212,11 +199,6 @@ export class MapComponent implements OnInit, DoCheck {
             if (notifyMe === undefined) {
                 if (days.length === 1) {
                     dayOfNotify = days[0].Day;
-
-                    //If time has already been passed, add 7 days
-                    if (date.getHours() > timeEnd) {
-                        date.setDate(date.getDate() + 7);
-                    }
                 } else {
                     for (let i = 0; i < days.length; i++) {
                         let item = days[i].Day;
@@ -237,17 +219,18 @@ export class MapComponent implements OnInit, DoCheck {
                     } else {
                         dayOfNotify = arrayOfDays[indexOfDayPrev + 1];
                     }
-                    //Add to get the date of the day
-                    difference = dayOfNotify - date.getDay();
 
-                    //If the day is in the week
-                    if (difference < 0) {
-                        difference = 7 - Math.abs(difference);
-                    }
-
-                    //Add the current date
-                    date.setDate(date.getDate() + difference);
                 }
+                //Add to get the date of the day
+                difference = dayOfNotify - date.getDay();
+
+                //If the day is in the next week
+                if (difference <= 0) {
+                    difference = 7 - Math.abs(difference);
+                }
+
+                //Add the current date
+                date.setDate(date.getDate() + difference);
             }
 
             Toast.makeText("Outside with num 3 day " + dayOfNotify).show();
