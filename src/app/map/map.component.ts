@@ -173,7 +173,15 @@ export class MapComponent implements OnInit, DoCheck {
         this.cfalertDialog.show(options);
     }
 
-    showBottomSheet(lat, lng, fullYear, timeStart, minStart, timeEnd, minEnd, days, i): void {
+    notifyTime(minStart: number, date: Date, notifyMe: Date, timeStart:number) {
+        if (minStart === 0) {
+            notifyMe = new Date(date.getFullYear(), date.getMonth(), date.getDate(), timeStart - 1, minStart + 30);
+        } else if (minStart === 30) {
+            notifyMe = new Date(date.getFullYear(), date.getMonth(), date.getDate(), timeStart);
+        }
+    }
+
+    showBottomSheet(lat, lng, fullYear, timeStart, minStart, timeEnd, minEnd, timeTwoStart, minTwoStart, timeTwoEnd, minTwoEnd, days, i): void {
         let date = new Date();
         let notifyMe;
         let dayOfNotify;
@@ -184,12 +192,11 @@ export class MapComponent implements OnInit, DoCheck {
         if (fullYear === true || (date.getMonth() <= 2 || date.getMonth() === 11)) {
 
             for (let i = 0; i < days.length; i++) {
-
                 if (date.getDay() === days[i].Day) {
-                    if (date.getHours() < timeStart && minStart === 0) {
-                        notifyMe = new Date(date.getFullYear(), date.getMonth(), date.getDate(), timeStart - 1, minStart + 30);
-                    } else if (date.getHours() < timeStart && minStart === 30) {
-                        notifyMe = new Date(date.getFullYear(), date.getMonth(), date.getDate(), timeStart);
+                    if(date.getHours() < timeStart) {
+                        this.notifyTime(minStart, date, notifyMe, timeStart);
+                    } else if(date.getHours() > timeEnd && date.getMinutes() > minEnd && timeTwoStart !== 0 && date.getHours() < timeTwoStart) {
+                        this.notifyTime(minStart, date, notifyMe, timeStart);
                     }
                 }
             }
@@ -235,11 +242,7 @@ export class MapComponent implements OnInit, DoCheck {
 
             Toast.makeText("Outside with num 3 day " + dayOfNotify).show();
 
-            if (minStart === 0) {
-                notifyMe = new Date(date.getFullYear(), date.getMonth(), date.getDate(), timeStart - 1, minStart + 30);
-            } else {
-                notifyMe = new Date(date.getFullYear(), date.getMonth(), date.getDate(), timeStart);
-            }
+            this.notifyTime(minStart, date, notifyMe, timeStart);
         }
 
         const notify = response => {
@@ -505,6 +508,10 @@ export class MapComponent implements OnInit, DoCheck {
                                 item.MinStart,
                                 item.TimeEnd,
                                 item.MinEnd,
+                                item.TimeTwoStart,
+                                item.MinTwoStart,
+                                item.TimeTwoEnd,
+                                item.MinTwoEnd,
                                 item.Days,
                                 i);
                         }
