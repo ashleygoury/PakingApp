@@ -23,6 +23,8 @@ import {Switch} from "tns-core-modules/ui/switch";
 import {setInterval} from "tns-core-modules/timer";
 import {HttpClient} from "@angular/common/http";
 import {LocalNotifications} from "nativescript-local-notifications";
+import * as Toast from 'nativescript-toast';
+import {not} from "rxjs/internal-compatibility";
 
 
 registerElement("Mapbox", () => require("nativescript-mapbox").MapboxView);
@@ -108,8 +110,8 @@ export class MapComponent implements OnInit, DoCheck {
 
         this.map.setCenter(
             {
-                lat: this.carParkLat, // mandatory
-                lng: this.carParkLng, // mandatory
+                lat: 45.551659, // mandatory
+                lng: -73.554826, // mandatory
                 animated: true // default true
             }
         )
@@ -171,37 +173,109 @@ export class MapComponent implements OnInit, DoCheck {
         this.cfalertDialog.show(options);
     }
 
-    showBottomSheet(lat, lng, fullYear, timeStart, minStart, days): void {
+    showBottomSheet(lat, lng, fullYear, timeStart, minStart, timeEnd, minEnd, days, i): void {
         let date = new Date();
         let notifyMe;
+        let dayOfNotify;
+
+        let difference;
+        let newDate;
+        let newDateFormat;
+        let arrayOfDays = [];
+        let newDateAddSevenDays;
+        let newDateFormatWithSeven;
 
         if (fullYear === true || (date.getMonth() <= 2 || date.getMonth() === 11)) {
+
             for (let i = 0; i < days.length; i++) {
+
                 if (date.getDay() === days[i].Day) {
                     if (date.getHours() < timeStart && minStart === 0) {
                         notifyMe = new Date(date.getFullYear(), date.getMonth(), date.getDate(), timeStart - 1, minStart + 30);
                     } else if (date.getHours() < timeStart && minStart === 30) {
                         notifyMe = new Date(date.getFullYear(), date.getMonth(), date.getDate(), timeStart);
+                        // } else if (date.getHours() > timeEnd) {
+                        //     newDateAddSevenDays = date.setDate(date.getDate() + 7);
+                        //     newDateFormatWithSeven = new Date(newDateAddSevenDays);
+                        //     if (minStart === 0) {
+                        //         notifyMe = new Date(newDateFormatWithSeven.getFullYear(), newDateFormatWithSeven.getMonth(), newDateFormatWithSeven.getDate(), timeStart - 1, minStart + 30);
+                        //     } else {
+                        //         notifyMe = new Date(newDateFormatWithSeven.getFullYear(), newDateFormatWithSeven.getMonth(), newDateFormatWithSeven.getDate(), timeStart);
+                        //     }
+                        // }
                     }
                 }
+            }
+
+            let dayPrev;
+
+            if (notifyMe === undefined) {
+                if (days.length === 1) {
+                    dayOfNotify = days[0].Day;
+
+                    //If time has already been passed, add 7 days
+                    if (date.getHours() > timeEnd) {
+                        date.setDate(date.getDate() + 7);
+                    }
+                } else {
+                    for (let i = 0; i < days.length; i++) {
+                        let item = days[i].Day;
+                        arrayOfDays.push(item);
+                    }
+
+                    //Get the closest previous day to the current day
+                    dayPrev = arrayOfDays.reduce(function (prev, curr) {
+                        return (Math.abs(curr - date.getDay()) < Math.abs(prev - date.getDay()) ? curr : prev);
+                    });
+
+                    //Get the index of the closest previous day
+                    let indexOfDayPrev = arrayOfDays.indexOf(dayPrev);
+
+                    //Get the next day in array
+                    if (indexOfDayPrev === (arrayOfDays.length - 1)) {
+                        dayOfNotify = arrayOfDays[0];
+                    } else {
+                        dayOfNotify = arrayOfDays[indexOfDayPrev + 1];
+                    }
+                    //Add to get the date of the day
+                    difference = dayOfNotify - date.getDay();
+
+                    //If the day is in the week
+                    if (difference < 0) {
+                        difference = 7 - Math.abs(difference);
+                    }
+
+                    //Add the current date
+                    date.setDate(date.getDate() + difference);
+                }
+            }
+
+            Toast.makeText("Outside with num 3 day " + dayOfNotify).show();
+
+            if (minStart === 0) {
+                notifyMe = new Date(date.getFullYear(), date.getMonth(), date.getDate(), timeStart - 1, minStart + 30);
+            } else {
+                notifyMe = new Date(date.getFullYear(), date.getMonth(), date.getDate(), timeStart);
             }
         }
 
         const notify = response => {
             LocalNotifications.schedule([{
-                id: 1,
-                title: 'Sound & Badge',
-                body: 'Who needs a push service anyway?',
+                id: i,
+                title: 'ParkingApp',
+                body: "It's time to move your car",
                 badge: 1,
                 at: notifyMe
             }]);
 
+            Toast.makeText("You will be notify at " + notifyMe).show();
+
             // adding a handler, so we can do something with the received notification.. in this case an alert
             LocalNotifications.addOnMessageReceivedCallback(data => {
                 alert({
-                    title: "Local Notification received",
-                    message: `id: '${data.id}', title: '${data.title}'.`,
-                    okButtonText: "Roger that"
+                    title: "Notification",
+                    message: `You need to move your car before: ${timeEnd}: ${minEnd}.`,
+                    okButtonText: "Thanks"
                 });
             });
         };
@@ -305,10 +379,7 @@ export class MapComponent implements OnInit, DoCheck {
         this.displayAutocomplete = false;
     }
 
-    onItemTap(args
-                  :
-                  ItemEventData
-    ) {
+    onItemTap(args: ItemEventData) {
         this.map.removeMarkers([2]);
         this.searchPhrase = this.predictions[args.index].description;
         this.displayAutocomplete = false;
@@ -390,10 +461,8 @@ export class MapComponent implements OnInit, DoCheck {
                     let endOneHour = day.timeOne.timeFinishOne;
                     let startTwoHour = day.timeTwo.timeStartTwo;
                     let endTwoHour = day.timeTwo.timeFinishTwo;
-                    console.log("Key: " + keys[i]);
                     if (currentDay !== day && (currentHours < startOneHour || currentHours > endOneHour) && (fullYear === true || (currentMonth <= 2 || currentMonth === 11))) {
                         if (currentHours < startTwoHour || currentHours > endTwoHour) {
-                            console.log(latStart, lngStart, latEnd, lngEnd);
                             this.map.addPolyline({
                                 color: '#008000',
                                 width: 7,
@@ -422,8 +491,7 @@ export class MapComponent implements OnInit, DoCheck {
             .subscribe(signLocations => (this.signLocations = signLocations));
     }
 
-    toggleSign(args: EventData):
-        void {
+    toggleSign(args: EventData): void {
         let that = this;
         this.isBusy = !this.isBusy;
 
@@ -431,26 +499,11 @@ export class MapComponent implements OnInit, DoCheck {
             let sw = args.object as Switch;
             let isChecked = sw.checked;
 
-            //////////////////
             let keys = [];
 
             Object.keys(that.signLocations).forEach(function (key) {
                 keys.push(key);
             });
-            ////////////////////
-
-            // id: i,
-            //     lat: that.signLocations[i].Latitude,
-            //     lng: that.signLocations[i].Longitude,
-            //     title: that.signLocations[i].DESCRIPTION_RPA,
-            //     subtitle: i.toString(),
-
-            // that.showBottomSheet(that.signLocations[i].Latitude,
-            //     that.signLocations[i].Longitude,
-            //     that.signLocations[i].FullYear,
-            //     that.signLocations[i].TimeStart,
-            //     that.signLocations[i].MinStart,
-            //     that.signLocations[i].Days);
 
             if (isChecked === true) {
                 for (let i = 0; i < keys.length; i++) {
@@ -467,7 +520,10 @@ export class MapComponent implements OnInit, DoCheck {
                                 item.FullYear,
                                 item.TimeStart,
                                 item.MinStart,
-                                item.Days);
+                                item.TimeEnd,
+                                item.MinEnd,
+                                item.Days,
+                                i);
                         }
                     };
                     that.map.addMarkers([
@@ -475,8 +531,8 @@ export class MapComponent implements OnInit, DoCheck {
                     ])
                 }
             } else {
-                for (let i = 0; i < that.signLocations.length; i++) {
-                    that.map.removeMarkers(i);
+                for (let i = 0; i < keys.length; i++) {
+                    that.map.removeMarkers(keys[i]);
                 }
             }
             that.isBusy = false
