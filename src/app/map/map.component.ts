@@ -173,13 +173,13 @@ export class MapComponent implements OnInit, DoCheck {
         this.cfalertDialog.show(options);
     }
 
-    notifyTime(minStart: number, date: Date, notifyMe: Date, timeStart:number) {
-        if (minStart === 0) {
-            notifyMe = new Date(date.getFullYear(), date.getMonth(), date.getDate(), timeStart - 1, minStart + 30);
-        } else if (minStart === 30) {
-            notifyMe = new Date(date.getFullYear(), date.getMonth(), date.getDate(), timeStart);
-        }
-    }
+    // notifyTime(minStart: number, date: Date, notifyMe: Date, timeStart: number) {
+    //     if (minStart === 0) {
+    //         notifyMe = new Date(date.getFullYear(), date.getMonth(), date.getDate(), timeStart - 1, minStart + 30);
+    //     } else if (minStart === 30) {
+    //         notifyMe = new Date(date.getFullYear(), date.getMonth(), date.getDate(), timeStart);
+    //     }
+    // }
 
     showBottomSheet(lat, lng, fullYear, timeStart, minStart, timeEnd, minEnd, timeTwoStart, minTwoStart, timeTwoEnd, minTwoEnd, days, i): void {
         let date = new Date();
@@ -193,10 +193,18 @@ export class MapComponent implements OnInit, DoCheck {
 
             for (let i = 0; i < days.length; i++) {
                 if (date.getDay() === days[i].Day) {
-                    if(date.getHours() < timeStart) {
-                        this.notifyTime(minStart, date, notifyMe, timeStart);
-                    } else if(date.getHours() > timeEnd && date.getMinutes() > minEnd && timeTwoStart !== 0 && date.getHours() < timeTwoStart) {
-                        this.notifyTime(minStart, date, notifyMe, timeStart);
+                    if (date.getHours() < timeStart) {
+                        if (minStart === 0) {
+                            notifyMe = new Date(date.getFullYear(), date.getMonth(), date.getDate(), timeStart - 1, minStart + 30);
+                        } else if (minStart === 30) {
+                            notifyMe = new Date(date.getFullYear(), date.getMonth(), date.getDate(), timeStart);
+                        }
+                    } else if (date.getHours() > timeEnd && date.getMinutes() > minEnd && timeTwoStart !== 0 && date.getHours() < timeTwoStart) {
+                        if (minStart === 0) {
+                            notifyMe = new Date(date.getFullYear(), date.getMonth(), date.getDate(), timeTwoStart - 1, minTwoStart + 30);
+                        } else if (minStart === 30) {
+                            notifyMe = new Date(date.getFullYear(), date.getMonth(), date.getDate(), timeTwoStart);
+                        }
                     }
                 }
             }
@@ -238,11 +246,14 @@ export class MapComponent implements OnInit, DoCheck {
 
                 //Add the current date
                 date.setDate(date.getDate() + difference);
+
+                if (minStart === 0) {
+                    notifyMe = new Date(date.getFullYear(), date.getMonth(), date.getDate(), timeStart - 1, minStart + 30);
+                } else if (minStart === 30) {
+                    notifyMe = new Date(date.getFullYear(), date.getMonth(), date.getDate(), timeStart);
+                }
             }
-
-            Toast.makeText("Outside with num 3 day " + dayOfNotify).show();
-
-            this.notifyTime(minStart, date, notifyMe, timeStart);
+            Toast.makeText("Outside with num 3 day " + notifyMe).show();
         }
 
         const notify = response => {
